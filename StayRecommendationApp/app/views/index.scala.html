@@ -1,5 +1,5 @@
 @import helper._
-@(userForm: Form[Tuple2[String,String]])(createUserForm : Form[User])(implicit messages: play.api.i18n.Messages)
+@(userForm: Form[Tuple2[String,String]])(createUserForm : Form[AddUserForm])(implicit messages: play.api.i18n.Messages)
 @implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.render) }
 @implicitFieldConstructor1 = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 

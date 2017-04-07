@@ -2,6 +2,7 @@ package controllers
 
 import javax.inject._
 
+import dal.UserRepository
 import models.{FormData, User}
 import play.api._
 import play.api.data.Form
@@ -10,12 +11,14 @@ import play.api.mvc._
 import play.api.i18n.Messages.Implicits._
 import play.api.i18n.{I18nSupport, MessagesApi}
 
+import scala.concurrent.{ExecutionContext, Future}
+
 /**
  * This controller creates an `Action` to handle HTTP requests to the
  * application's home page.
  */
 @Singleton
-class HomeController @Inject()(val messagesApi: MessagesApi)  extends Controller with I18nSupport {
+class HomeController @Inject()(val messagesApi: MessagesApi)(repo:UserRepository)(implicit ec: ExecutionContext) extends Controller with I18nSupport {
 
   /**
    * Create an Action to render an HTML page with a welcome message.
@@ -38,10 +41,12 @@ class HomeController @Inject()(val messagesApi: MessagesApi)  extends Controller
     )
   }
 
-  def createUser = Action{ implicit request =>
+  def createUser = Action.async { implicit request =>
     FormData.createUserForm.bindFromRequest().fold(
-      errorForm => BadRequest,
-      user => Ok(s"User Created Successfully")
+      errorForm => Future.successful(Ok),
+      user => {
+        repo.addUser(user.name,user.email,user.age,user.password).map(user => Ok(s"user ${user.name} Created Successfully"))
+          }
     )
 
   }
