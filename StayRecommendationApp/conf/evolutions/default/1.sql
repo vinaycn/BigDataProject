@@ -1,11 +1,12 @@
 #--- !Ups
 create table `user` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `name` TEXT NOT NULL,
-  `email` TEXT NOT NULL,
-  `age` BIGINT NOT NULL,
-  `password` TEXT NOT NULL
-)
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  age INT NOT NULL,
+  password VARCHAR(100) NOT NULL,
+  UNIQUE (email)
+);
 
 
 #--- !Downs

@@ -1,11 +1,12 @@
 @import helper._
-@(userForm: Form[Tuple2[String,String]])(createUserForm : Form[AddUserForm])(implicit messages: play.api.i18n.Messages)
+@(userForm: Form[Tuple2[String,String]])(createUserForm : Form[UserFormData])(errMsg:String)(implicit messages: play.api.i18n.Messages)
 @implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.render) }
 @implicitFieldConstructor1 = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
 
 @main("Welcome to my Application"){
     <section  id="about">
         <div class="container">
+            <p>@errMsg</p>
             <div class="lead">
             @form(action=routes.HomeController.userLogin(),'class -> "form-horizontal" ) {
                 @b3.email(userForm("userName"),'_label -> "Email", 'id -> "Email")

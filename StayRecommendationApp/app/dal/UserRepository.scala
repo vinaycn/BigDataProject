@@ -10,14 +10,14 @@ import slick.driver.JdbcProfile
 
 import scala.concurrent.{ExecutionContext, Future}
 
-
 /**
   * Created by vinay on 4/5/17.
   */
+/*
 @Singleton
 class UserRepository @Inject()(databaseConfig: DatabaseConfigProvider)(implicit ec: ExecutionContext){
 
-  private val dbConfig = databaseConfig.get[JdbcProfile]
+  val dbConfig = databaseConfig.get[JdbcProfile]
 
 
   import dbConfig._
@@ -42,7 +42,7 @@ class UserRepository @Inject()(databaseConfig: DatabaseConfigProvider)(implicit 
   }
 
 
-    private val users = TableQuery[UserTableDef]
+
 
 
   def addUser(name: String,email: String,age :Int,password: String) : Future[User] = db.run {
@@ -55,6 +55,8 @@ class UserRepository @Inject()(databaseConfig: DatabaseConfigProvider)(implicit 
     }
 
 
+
+
   def findUser(email :String,password: String) : Future[Seq[User]] = db.run{
     val user = users.result.map(user => user.filter(_.email.toString() == email).filter(_.password.toString()==password))
     user
@@ -64,3 +66,4 @@ class UserRepository @Inject()(databaseConfig: DatabaseConfigProvider)(implicit 
 
 
 }
+**/
