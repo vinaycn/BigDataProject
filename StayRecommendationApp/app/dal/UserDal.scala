@@ -1,11 +1,13 @@
 package dal
 
+import javax.inject.Singleton
+
 import com.google.inject.{ImplementedBy, Inject}
 import models.User
 import play.api.db.slick.DatabaseConfigProvider
 import slick.driver.MySQLDriver.api._
 import utils.UserExceptions
-
+import akka.pattern.pipe
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 /**
@@ -19,7 +21,7 @@ def addUser(user: User):Future[String]
 }
 
 
-
+@Singleton
 class UserDalImpl @Inject() (databaseConfig: DatabaseConfigProvider)  extends DAL(databaseConfig)  with UserDal{
 
 
@@ -49,13 +51,13 @@ class UserDalImpl @Inject() (databaseConfig: DatabaseConfigProvider)  extends DA
   override def addUser(user: User): Future[String] =  {
     db.run(users += user).map(res => "User Added Successfully").recover{
       case emailException:com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException => UserExceptions.emailAlreadyExists
-      case ex:Exception => ex.getCause.getMessage
+      case ex:Exception => UserExceptions.genericExceptioons
     }
   }
 
   override def getUser(email: String, password: String): Future[Option[User]] = {
     db.run{
-      users.filter(_.email === email).filter(_.password===password).result.headOption
+      users.filter(_.email === email).filter(_.password === password).result.headOption
   }
 
   }

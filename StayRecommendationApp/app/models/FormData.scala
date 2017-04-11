@@ -10,7 +10,7 @@ object FormData {
 
   val userForm = Form(
     tuple(
-      "email" -> email,
+      "email" -> nonEmptyText,
       "password" -> nonEmptyText(minLength = 6,maxLength = 10)
     )
   )

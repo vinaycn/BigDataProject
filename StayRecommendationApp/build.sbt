@@ -13,7 +13,10 @@ libraryDependencies ++= Seq(
 )
 
 
-libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.16"
+
+libraryDependencies += "com.typesafe.akka" % "akka-actor_2.11" % "2.4.17"
+
+libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.34"
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-slick" % "2.0.0",
 "com.typesafe.play" %% "play-slick-evolutions" % "2.0.0"

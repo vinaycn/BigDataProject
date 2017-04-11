@@ -9,7 +9,7 @@
             <p>@errMsg</p>
             <div class="lead">
             @form(action=routes.HomeController.userLogin(),'class -> "form-horizontal" ) {
-                @b3.email(userForm("userName"),'_label -> "Email", 'id -> "Email")
+                @b3.email(userForm("email"),'_label -> "Email", 'id -> "Email")
                 @b3.password(userForm("password"),'_label -> "Password", 'id -> "Password")
                 <div class="control-group">
                     <div class="controls">

@@ -6,6 +6,7 @@ package utils
 object UserExceptions {
 
   val emailAlreadyExists = "EMAIL_ALREADY_EXISTS"
+  val genericExceptioons = "Unable to Create User. Please try after sometime"
 
 
 }
