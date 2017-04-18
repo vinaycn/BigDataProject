@@ -1,4 +1,4 @@
-package utils
+package MyUtils
 
 /**
   * Created by vinay on 4/7/17.

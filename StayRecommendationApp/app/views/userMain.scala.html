@@ -24,10 +24,18 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js">
+    </script>
+    <script src = "/assets/javascripts/user.js"></script>
+    <script src="/assets/javascripts/Chart.js"></script>
+    <script src="/assets/javascripts/angular-chart.js"></script>
+
+
+
 
   </head>
 
-  <body>
+  <body ng-app = "UserRecommendation">
 
       <!-- Navigation -->
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -73,6 +81,16 @@
       </header>
 
       <hr>
+      <!--WebSocket Content -->
+        <div class="row" ng-controller = "UserWebSocket">
+          <button ng-click = "getGraph()">Click Here to get Graph Data</button>
+          <canvas id="bar" class="chart chart-bar"
+          chart-data="data" chart-labels="labels">
+          </canvas>
+        </div>
+
+
+
 
         <!-- Title -->
       <div class="row">
@@ -160,6 +178,8 @@
 
       <!-- Bootstrap Core JavaScript -->
     <script src="assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+
 
   </body>
 

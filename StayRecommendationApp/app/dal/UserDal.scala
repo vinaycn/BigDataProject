@@ -6,7 +6,7 @@ import com.google.inject.{ImplementedBy, Inject}
 import models.User
 import play.api.db.slick.DatabaseConfigProvider
 import slick.driver.MySQLDriver.api._
-import utils.UserExceptions
+import MyUtils.UserExceptions
 import akka.pattern.pipe
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
