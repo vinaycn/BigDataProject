@@ -38,7 +38,7 @@ object AveragePriceByRoomType{
 
 //Class has all columns for AveragePriceByNoOfRooms column family
 object  AveragePriceByNoOfRooms{
-  val one = "One"
+  val one = "one"
   val two = "two"
   val three = "three"
   val fourPlus = "fourPlus"

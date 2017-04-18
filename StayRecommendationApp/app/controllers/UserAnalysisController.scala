@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import hBase.AverageAnalysisOfListing
 import kafka.utils.CoreUtils
+import play.api.libs.iteratee.Enumeratee
 import play.api.mvc._
 import play.api.libs.json.Json
 /**
@@ -16,13 +17,28 @@ class UserAnalysisController @Inject() (averageAnalysisOfListing: AverageAnalysi
 
   def graph = Action{
 
-       val maps= averageAnalysisOfListing.getAverageAnalysisOfPriceByPlace("Berlin")
-       println(maps)
-       maps.toList.foreach(x => println(x))
+       val maps= averageAnalysisOfListing.getAverageAnalysisOfPriceByRoomType("Berlin")
+       val mapsforRooms = averageAnalysisOfListing.getAverageAnalysisOfPriceByNoOfRooms("Berlin")
+
+val somesd =  maps += mapsforRooms
+    // println(maps)
+       //maps.toList.foreach(x => println(x))
         val some = Json.toJson(maps)
        Ok(Json.toJson(maps))
    }
 
+
+
+  def graph1 = Action{
+
+    //val maps= averageAnalysisOfListing.getAverageAnalysisOfPriceByRoomType("Berlin")
+    val mapsforRooms = averageAnalysisOfListing.getAverageAnalysisOfPriceByNoOfRooms("Berlin")
+    //print(mapsforRooms)
+    //println(maps)
+    mapsforRooms.toList.foreach(x => println(x))
+    //val some = Json.toJson(mapsforRooms)
+    Ok(Json.toJson(mapsforRooms))
+  }
 
 
 }

@@ -8,6 +8,7 @@ POST        /login                      controllers.HomeController.userLogin
 POST        /signUp                     controllers.HomeController.createUser
 #GET         /socket                     controllers.HomeController.socket
 GET         /graph                      controllers.UserAnalysisController.graph
+GET         /graph1                      controllers.UserAnalysisController.graph1
 
 
 # Map static resources from the /public folder to the /assets URL path

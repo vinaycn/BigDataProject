@@ -1,4 +1,4 @@
-/*
+
 package spark
 
 import java.util
@@ -58,4 +58,4 @@ class SparkStreamingClient(configuration : Configuration) {
   streamingContext.awaitTermination()
 
 }
-*/
+
