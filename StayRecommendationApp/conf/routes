@@ -4,11 +4,17 @@
 
 # An example controller showing a sample home page
 GET         /                           controllers.HomeController.home
+
 POST        /login                      controllers.HomeController.userLogin
+
 POST        /signUp                     controllers.HomeController.createUser
-#GET         /socket                     controllers.HomeController.socket
+
+
 GET         /graph                      controllers.UserAnalysisController.graph
+
 GET         /graph1                      controllers.UserAnalysisController.graph1
+
+GET         /getRecommendation           controllers.HomeController.getRecommendation
 
 
 # Map static resources from the /public folder to the /assets URL path

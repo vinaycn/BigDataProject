@@ -23,7 +23,7 @@ class KafkaClientRecommendationRequestProducer @Inject()(conf: Configuration) {
 
   private def initializeProperties(keySerializer: String, valueSerializer: String): Properties = {
 
-    val bootStrapServer = conf.getString("kafka.bootstrap.servers").getOrElse("no bootstrap server in app config")
+    val bootStrapServer = conf.getString("kafka.servers").getOrElse("no bootstrap server in app config")
     val producerProperties = new Properties()
     producerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServer)
     producerProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializer)
@@ -51,7 +51,7 @@ class KafkaClientRecommendationResponseConsumer @Inject()(conf: Configuration) {
 
   private def initializeProperties(keyDeSerializer: String, valueDeSerializer: String): Properties = {
 
-    val bootStrapServer = conf.getString("kafka.bootstrap.servers").getOrElse("no bootstrap server in app config")
+    val bootStrapServer = conf.getString("kafka.servers").getOrElse("no bootstrap server in app config")
     val consumerProperties = new Properties()
     consumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServer)
     consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeSerializer)

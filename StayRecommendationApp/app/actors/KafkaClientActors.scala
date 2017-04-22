@@ -2,14 +2,14 @@ package actors
 
 import actors.ConsumerActor.ReadDataFromKafka
 import actors.KafkaConsumerClientManagerActor.{GetRecommendation, RecommendedListing}
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{Actor, ActorRef, Props}
 import kafka.KafkaClientRecommendationResponseConsumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 
 import scala.collection.mutable
 
 /**
-  * Created by akashnagesh on 4/13/17.
+  * Created by Vinay on 4/13/17.
   */
 
 object KafkaConsumerClientManagerActor {
@@ -20,7 +20,13 @@ object KafkaConsumerClientManagerActor {
 
 }
 
+//Will request another actor to consume records from the kafka
 class KafkaConsumerClientManagerActor(consumer: ActorRef) extends Actor {
+
+  override def preStart() = {
+    println("--------------------------in prestart!!!")
+    context.actorOf(Props(classOf[SparkStreamingListnerActor])) ! SparkStreamingListnerActor.StartListeningToKafka()
+  }
 
   var bufferMap = new mutable.HashMap[String, ActorRef]()
 
@@ -42,6 +48,8 @@ class KafkaConsumerClientManagerActor(consumer: ActorRef) extends Actor {
 }
 
 
+
+//This actor will read the recommended Data listings from the Kafka
 object ConsumerActor {
 
   case class ReadDataFromKafka()

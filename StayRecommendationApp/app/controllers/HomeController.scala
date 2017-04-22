@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 
-import actors.LoginActor
+import actors.{ConsumerActor, KafkaConsumerClientManagerActor, LoginActor, RecommendationWebSocketActor}
 import akka.actor.{ActorSystem, Props}
 import akka.routing.RoundRobinPool
 import dal.UserDalImpl
@@ -19,6 +19,7 @@ import akka.actor._
 import akka.stream.Materializer
 import akka.util.Timeout
 import hBase.hBase
+import kafka.{KafkaClientRecommendationRequestProducer, KafkaClientRecommendationResponseConsumer}
 import play.api.libs.streams.ActorFlow
 
 import scala.concurrent.duration._
@@ -27,7 +28,11 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.streams._
 
 @Singleton
-class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDalImpl)(config : ConfigReader)(implicit ec: ExecutionContext, actorSystem: ActorSystem, materializer: Materializer) extends Controller with I18nSupport {
+class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDalImpl)
+                              (kafkaProducer :KafkaClientRecommendationRequestProducer)
+                              (kafkaConsumer : KafkaClientRecommendationResponseConsumer)
+                              (config : ConfigReader)
+                              (implicit ec: ExecutionContext, actorSystem: ActorSystem, materializer: Materializer) extends Controller with I18nSupport {
 
   /**
    * Create an Action to render an HTML page with a welcome message.
@@ -36,14 +41,17 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
    * a path of `/`.
    */
 
+  val logger = play.Logger.of("StayRecommendation Logger")
 
   implicit val timeout: Timeout = Timeout(5 seconds)
 
   val loginActors = actorSystem.actorOf(Props(classOf[LoginActor],userDalImpl).withRouter(RoundRobinPool(10)),name = "LoginActors")
-
+  val consumerActor = actorSystem.actorOf(Props(classOf[ConsumerActor], kafkaConsumer))
+  val consumerClientManagerActor = actorSystem.actorOf(Props(classOf[KafkaConsumerClientManagerActor], consumerActor))
 
 
   def home = Action {
+    logger.info("User in main Page")
     Ok(views.html.index(FormData.userForm)(FormData.createUserForm)(""))
   }
 
@@ -54,6 +62,8 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
 
   def userLogin = Action.async { implicit request =>
 
+    logger.info("User trying to login")
+    implicit val timeout: Timeout = Timeout(3 seconds)
     FormData.userForm.bindFromRequest().fold(
       errorMsg => Future.successful(Ok(views.html.index(FormData.userForm)(FormData.createUserForm)("Something Went Wrong"))),
       userTuple => {
@@ -69,6 +79,7 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
   //
 
   def createUser = Action.async { implicit request =>
+    implicit val timeout: Timeout = Timeout(3 seconds)
     FormData.createUserForm.bindFromRequest().fold(
       errorForm => Future.successful(Ok),
       user => {
@@ -86,7 +97,12 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
 
 
 
-
+  def getRecommendation = WebSocket.acceptOrResult[String, String] { request =>
+    Future.successful(request.session.get("user") match {
+      case None => Left(Forbidden)
+      case Some(user) => Right(ActorFlow.actorRef(out => RecommendationWebSocketActor.props(out,kafkaProducer,consumerClientManagerActor, user)))
+    })
+  }
 
 
 

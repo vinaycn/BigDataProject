@@ -60,7 +60,7 @@ public class AveragePriceByRoomType {
 		job.setMapOutputValueClass(SortedMapWritable.class);
 		// job.setCombinerClass(AveragePriceByRoomTypeCombiner.class);
 		job.addCacheFile(new URI("/Stay/Cache/headerForBerlin#headerForBerlin"));
-		FileInputFormat.addInputPath(job, new Path(args[1]));
+		FileInputFormat.addInputPath(job, new Path(args[0]));
 
 		TableMapReduceUtil.initTableReducerJob(HBaseTablesName.tableNameForAnalysisOfListingByPlace,
 				AveragePriceByRoomTypeReducer.class, job);
@@ -157,7 +157,7 @@ public class AveragePriceByRoomType {
 
 		Connection connection;
 		Admin admin;
-		// Table table;
+		Table table;
 
 		@Override
 		protected void setup(Reducer<Text, SortedMapWritable, ImmutableBytesWritable, Mutation>.Context context)
@@ -170,9 +170,20 @@ public class AveragePriceByRoomType {
 			admin = connection.getAdmin();
 
 			if (admin.tableExists(TableName.valueOf(HBaseTablesName.tableNameForAnalysisOfListingByPlace))) {
-				// Use the created table if its already exists
-				// table =
-				// connection.getTable(TableName.valueOf(HBaseTablesName.tableNameForAnalysisOfListingByPlace));
+				 //Use the created table if its already exists
+				 //table = connection.getTable(TableName.valueOf(HBaseTablesName.tableNameForAnalysisOfListingByPlace));
+				table = connection.getTable(TableName.valueOf(HBaseTablesName.tableNameForAnalysisOfListingByPlace));
+
+				if (!table.getTableDescriptor().hasFamily(Bytes.toBytes("AveragePriceByRoomType"))) {
+
+					// Create the Column family
+					HColumnDescriptor hColumnDescriptor = new HColumnDescriptor("AveragePriceByRoomType");
+
+					// Add the column family
+					admin.addColumn(TableName.valueOf(HBaseTablesName.tableNameForAnalysisOfListingByPlace),
+							hColumnDescriptor);
+
+				}
 			} else {
 
 				// Create an Table Descriptor with table name

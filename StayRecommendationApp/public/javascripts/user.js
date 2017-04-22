@@ -3,34 +3,43 @@
  */
 
 
-angular.module("UserRecommendation",["chart.js"]).controller("UserWebSocket",function ($scope,$http) {
+angular.module("UserRecommendation",["chart.js","rzModule","ui.bootstrap"]).controller("UserWebSocket",function ($scope,$http) {
 
-    var ws = new WebSocket('ws://localhost:9000/socket');
-    alert("Hi");
 
-    var chat = this;
-     chat.currentMessage = "";
+    $scope.message = "";
+    $scope.response = "";
+    var ws  = new WebSocket('ws://localhost:9000/getRecommendation');
 
-     chat.messages =[];
-
-    $scope.sendMessage = function(){
-        alert("Send The Data");
-        alert(chat.currentMessage)
-        ws.send("Add");
+    $scope.minSlider = {
+        value: 10
+    };
+    $scope.minSlider1 = {
+        value: 10
+    };
+    $scope.minSlider2 = {
+        value: 10
     };
 
 
+    $scope.getRecommendation = function(message){
+
+        var one =  $scope.minSlider.value;
+        var two = $scope.minSlider1.value;
+        var three =$scope.minSlider2.value;
+
+        //ws  = new WebSocket('ws://localhost:9000/getRecommendation');
+        alert("Web Socket Connection  established");
+        alert(message);
+        ws.send(message);
+    };
+
+    ws.onmessage =function(dataFromServer){
+        alert("got message")
+        alert(dataFromServer.data)
+        $scope.response = dataFromServer.data
+    };
 
 
-    $scope.getMessage = function () {
-        alert("Get The Data");
-        ws.send("getFromConsumer");
-    }
-
-    ws.onmessage = function(msg){
-        alert(msg.data);
-        $scope.$digest();
-    }
 
 
 
@@ -38,7 +47,7 @@ angular.module("UserRecommendation",["chart.js"]).controller("UserWebSocket",fun
     $scope.getGraph = function () {
         alert("Getting Graph")
         $http.get('/graph').success(function (stats) {
-            // alert(data);
+             alert(stats);
             console.log(stats);
             //$scope.myData = stats;
             $scope.labels =[];
@@ -63,7 +72,7 @@ angular.module("UserRecommendation",["chart.js"]).controller("UserWebSocket",fun
     $scope.getGraph1 = function () {
         alert("Getting Graph")
         $http.get('/graph1').success(function (stats) {
-            // alert(data);
+            alert(stats);
             console.log(stats);
             //$scope.myData = stats;
             $scope.labels1 =[];

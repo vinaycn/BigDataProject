@@ -1,61 +1,72 @@
 
 package spark
 
-import java.util
-import java.util.{Collection, Collections, HashMap, Map}
 
-import kafka.{KafkaClientDeSerializers, KafkaClientSerializers}
-import org.apache.kafka.clients.consumer.ConsumerRecord
+import javax.inject.Singleton
+
+
+import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
 import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.spark.SparkConf
-import play.api.Configuration
-import org.apache.spark.SparkContext
-import org.apache.spark.streaming
+import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
+import org.apache.spark.streaming.kafka010.KafkaUtils
+import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 /**
   * Created by vinay on 4/17/17.
   */
-class SparkStreamingClient(configuration : Configuration) {
 
 
-  val kafkaServers: String = configuration.getString("kafka.servers").getOrElse("No kafka Server Provided")
-  val readTopic: String = configuration.getString("kafka.Usertopic").getOrElse("No Topic to read Data")
-  val writeTopic = configuration.getString("kafka.RecommendationTopic").getOrElse("No topic for write an data")
-  val appName: String = configuration.getString("StayRecoomendationApp").getOrElse("StayRecommendationApp")
-  val sparkMaster: /**/String = configuration.getString("local[*]").getOrElse("local[*]")
+
+@Singleton
+class SparkStreamingClient {
 
 
-  /*val kafkaParams = Map{"bootstrap.servers" ->kafkaServers;
-    "key.deserializer" -> KafkaClientDeSerializers.STRING_DESERIALIZER;
-    "value.deserializer"-> KafkaClientDeSerializers.STRING_DESERIALIZER;
-    "group.id"->"SparkStreaming";
-    "auto.offset.reset"->"latest";
-    "enable.auto.commit"->false
-  }*/
+  //  val conf = Play.current.configuration
+  val bootStrapServer = "localhost:9092" //conf.getString("kafka.bootstrap.servers").getOrElse("no bootstrap server in app config")
+  println("inside this classss +++++++++++++++++++++" + bootStrapServer)
+
+  val userPreferenceTopic = "requestRecommendation" //conf.getString("kafka.topicIn").getOrElse("no input topic")
+  val sparkAppName = "StayRecommendation"
+  //conf.getString("spark.appName").getOrElse("no spark application name")
+  val master = "local[*]"
+  //conf.getString("spark.master").getOrElse("no spark master")
+  val consumerGroupId = "sparkConsumer" //conf.getString("streamconsumer.groupid").getOrElse("no group id for consumer")
+
+  val kafkaParams = Map[String, Object](ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG -> bootStrapServer,
+    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer],
+    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer],
+    ConsumerConfig.GROUP_ID_CONFIG -> consumerGroupId,
+    "auto.offset.reset" -> "latest")
+
+  val sc = SparkCommons.sc
+
+  val ssc = SparkCommons.streamingContext
 
 
- /* kafkaParams.put("bootstrap.servers", kafkaServers)
-  kafkaParams.put("key.deserializer", classOf[StringDeserializer])
-  kafkaParams.put("value.deserializer", classOf[StringDeserializer])
-  kafkaParams.put("group.id", groupId)
-  kafkaParams.put("auto.offset.reset", "latest")
-  kafkaParams.put("enable.auto.commit", false)*/
-
-  val conf: SparkConf = new SparkConf().setMaster(sparkMaster).setAppName(appName)
-  val sc = new SparkContext(conf)
-  val streamingContext = new StreamingContext(conf,Seconds(5))
+  val listingPredictor = new ListingPredictor(sc)
 
 
- // val topics: util.Collection[String] = Collections.singletonList(readTopic)
 
-  //val stream: JavaInputDStream[ConsumerRecord[String, String]] = KafkaUtils.createDirectStream(streamingContext, LocationStrategies.PreferConsistent, ConsumerStrategies.Subscribe[String, String](topics, kafkaParams))
+  val kafkaReceiverParams = Map[String, String](
+    "metadata.broker.list" -> "192.168.10.2:9092")
 
-  //val records: JavaDStream[String] = stream.map(ConsumerRecord.value.asInstanceOf[Function[ConsumerRecord[String, String], String]])
+  val topics = Array("requestRecommendation")
+  val stream = KafkaUtils.createDirectStream[String, String](
+    ssc,
+    PreferConsistent,
+    Subscribe[String, String](topics, kafkaParams)
+  )
+  val mapped = stream.map(record => (record.key(), record.value()))
 
-  //ecords.print()
-
-  streamingContext.start()
-  streamingContext.awaitTermination()
+  println("---------------------------")
+  val x = mapped.foreachRDD { x => {
+    val l = x.collect()
+    println("number of elements received in 4 seconds is " + l.length)
+    l.foreach(individualRecord => println("listing suitable ++++++++++++" + listingPredictor.recommendListing("111")))
+  }
+  }
+  ssc.start()
+  ssc.awaitTermination()
 
 }
 

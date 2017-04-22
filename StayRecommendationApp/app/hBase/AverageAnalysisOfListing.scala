@@ -23,7 +23,7 @@ def getAverageAnalysisOfPriceByRoomType(place : String) ={
   val homeColumn:Array[Byte] = AveragePriceByRoomType.EntireHomeApt.getBytes
   val sharedColumn:Array[Byte]= AveragePriceByRoomType.SharedRoom.getBytes
   val privateColumn:Array[Byte] = AveragePriceByRoomType.PrivateRoom.getBytes
-
+println("Fuck u play")
   //Get the Connection
   val connection = hBase.getConnection
   //Get the Table
@@ -42,7 +42,11 @@ def getAverageAnalysisOfPriceByRoomType(place : String) ={
   val sh = Bytes.toDouble(sharedAveragePrice)
   val pv = Bytes.toDouble(privateAveragePrice)
   val aggData =Map(AveragePriceByRoomType.SharedRoom -> sh,AveragePriceByRoomType.PrivateRoom -> pv,AveragePriceByRoomType.EntireHomeApt -> ha)
-aggData
+println(aggData)
+  connection.close();
+  tabel.close()
+  aggData
+
 }
 
 
@@ -74,6 +78,8 @@ aggData
     val fourPrice = Bytes.toDouble(fourPlusAveragePrice)
 
     val aggData =Map(AveragePriceByNoOfRooms.one -> onePrice,AveragePriceByNoOfRooms.two -> twoPrice,AveragePriceByNoOfRooms.three -> threePrice,AveragePriceByNoOfRooms.fourPlus -> fourPrice)
+    connection.close()
+    tabel.close
     aggData
   }
 

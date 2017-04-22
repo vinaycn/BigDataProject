@@ -17,11 +17,12 @@ class UserAnalysisController @Inject() (averageAnalysisOfListing: AverageAnalysi
 
   def graph = Action{
 
+    println("Im here")
        val maps= averageAnalysisOfListing.getAverageAnalysisOfPriceByRoomType("Berlin")
-       val mapsforRooms = averageAnalysisOfListing.getAverageAnalysisOfPriceByNoOfRooms("Berlin")
+       //val mapsforRooms = averageAnalysisOfListing.getAverageAnalysisOfPriceByNoOfRooms("Berlin")
 
-val somesd =  maps += mapsforRooms
-    // println(maps)
+      //val somesd =  maps += mapsforRooms
+       println(maps)
        //maps.toList.foreach(x => println(x))
         val some = Json.toJson(maps)
        Ok(Json.toJson(maps))
@@ -33,7 +34,7 @@ val somesd =  maps += mapsforRooms
 
     //val maps= averageAnalysisOfListing.getAverageAnalysisOfPriceByRoomType("Berlin")
     val mapsforRooms = averageAnalysisOfListing.getAverageAnalysisOfPriceByNoOfRooms("Berlin")
-    //print(mapsforRooms)
+    print(mapsforRooms)
     //println(maps)
     mapsforRooms.toList.foreach(x => println(x))
     //val some = Json.toJson(mapsforRooms)

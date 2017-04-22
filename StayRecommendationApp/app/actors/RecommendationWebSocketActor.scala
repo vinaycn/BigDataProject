@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorRef, PoisonPill, Props}
 import kafka.KafkaClientRecommendationRequestProducer
 
 /**
-  * Created by akashnagesh on 4/11/17.
+  * Created by vinay on 4/11/17.
   */
 object RecommendationWebSocketActor {
   def props(out: ActorRef, kafkaProducer: KafkaClientRecommendationRequestProducer,
@@ -18,9 +18,10 @@ class RecommendationWebSocketActor(val out: ActorRef, val kafkaProducer: KafkaCl
   def receive = {
     case msg: String => {
 
-      println("inside actor default receive")
+      println("inside actor Which will publish a message")
 
       kafkaProducer.publishMessage(user, msg)
+      println("published the message to the kafka")
       kafkaClientManagerActor ! KafkaConsumerClientManagerActor.GetRecommendation(user)
       // out ! msg + "appending this from server"
       context.become(onConsumerMessageBehavior)
@@ -30,6 +31,7 @@ class RecommendationWebSocketActor(val out: ActorRef, val kafkaProducer: KafkaCl
   def onConsumerMessageBehavior: Receive = {
     case msg: String => {
       println("final msg in actor")
+      println(msg)
       out ! msg
       self ! PoisonPill
     }

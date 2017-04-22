@@ -17,6 +17,8 @@
 
       <!-- Custom CSS -->
     <link href="/assets/stylesheets/heroic-features.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.1.1/rzslider.css" rel="stylesheet">
+    <link href="/assets/stylesheets/rz.css" rel="stylesheet">
 
       <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
       <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -24,8 +26,12 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js">
-    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.1.1/rzslider.min.js"></script>
+
+
     <script src = "/assets/javascripts/user.js"></script>
     <script src="/assets/javascripts/Chart.js"></script>
     <script src="/assets/javascripts/angular-chart.js"></script>
@@ -79,7 +85,18 @@
         <p><a class="btn btn-primary btn-large">Call to action!</a>
         </p>
       </header>
+      <hr>
 
+
+
+      <div class="row" ng-controller = "UserWebSocket">
+        <rzslider rz-slider-model="minSlider.value"></rzslider>
+        <rzslider rz-slider-model="minSlider1.value"></rzslider>
+        <rzslider rz-slider-model="minSlider2.value"></rzslider>
+        <input type="text" id="text" placeholder="enter a msg here to send to kafka" ng-model = "message"></input>
+        <button ng-click = "getRecommendation(message)">Get Recommendations</button>
+        <p>{{reponse}}</p>
+      </div>
       <hr>
       <!--WebSocket Content -->
         <div class="row" ng-controller = "UserWebSocket">
