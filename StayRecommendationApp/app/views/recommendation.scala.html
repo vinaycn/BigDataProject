@@ -84,7 +84,7 @@
         <!-- Jumbotron Header -->
       <header class="jumbotron hero-spacer">
         <h1>A Warm Welcome!</h1>
-        <p>All MapReduce Analysis Results can be seen in this page</p>
+        <p>Recommendation Based on the User Preference</p>
         <p><a class="btn btn-primary btn-large">Call to action!</a>
         </p>
       </header>
@@ -106,8 +106,6 @@
       <div class="row" ng-controller = "UserWebSocket">
 
         <button ng-click = "getGraph()">Click Here to get Graph Data</button>
-        <button ng-click = "getFullData()">Click Here to get Graph Data</button>
-
         <div class="col-lg-10">
           <canvas id="bar" class="chart chart-bar"
           chart-data="data" chart-labels="labels">
@@ -142,13 +140,13 @@
       <hr>
 
 
-      <!--WebSocket Content -->
-        <div class="row" ng-controller = "UserWebSocket">
-          <button ng-click = "getGraph()">Click Here to get Graph Data</button>
-          <canvas id="bar" class="chart chart-bar"
-          chart-data="data" chart-labels="labels">
-          </canvas>
-        </div>
+        <!--WebSocket Content -->
+      <div class="row" ng-controller = "UserWebSocket">
+        <button ng-click = "getGraph()">Click Here to get Graph Data</button>
+        <canvas id="bar" class="chart chart-bar"
+        chart-data="data" chart-labels="labels">
+        </canvas>
+      </div>
       <div class="row" ng-controller = "UserWebSocket">
         <button ng-click = "getGraph1()">Click Here to get Graph Data1</button>
         <canvas id="bar" class="chart chart-bar"
@@ -238,14 +236,14 @@
 
     </div>
 
-      <!-- /.container -->
+    <!-- /.container -->
 
-      <!-- jQuery -->
+    <!-- jQuery -->
 
-    <script src="assets/vendor/bootstrap/jquery/jquery.js"></script>
+  <script src="assets/vendor/bootstrap/jquery/jquery.js"></script>
 
-      <!-- Bootstrap Core JavaScript -->
-    <script src="assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.min.js"></script>
 
 
 

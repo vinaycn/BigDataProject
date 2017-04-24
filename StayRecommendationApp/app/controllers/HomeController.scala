@@ -55,9 +55,58 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
     Ok(views.html.index(FormData.userForm)(FormData.createUserForm)(""))
   }
 
+  def getReccommendationPage = Action{ implicit request =>
+    request.session.get("user") match {
+      case Some(user) => {
+        logger.info ("User in Recommendation Page")
+        Ok (views.html.recommendation ("Welcome User") )
+      }
+      case None => Ok(views.html.index(FormData.userForm)(FormData.createUserForm)("Please login to access to this page"))
+
+    }
+  }
+
+  def getAnalysisDataPage = Action{
+    implicit request =>
+      request.session.get("user") match {
+        case Some(user) => {
+          logger.info ("User in Analysis Data Page")
+          Ok(views.html.analysisData("Welcome User"))
+        }
+        case None => Ok(views.html.index(FormData.userForm)(FormData.createUserForm)("Please login to access to this page"))
+
+      }
 
 
+  }
 
+
+  def getDatasetsPage = Action{
+    implicit request =>
+      request.session.get("user") match {
+        case Some(user) => {
+          logger.info ("User in DataSets Page")
+          Ok(views.html.datasets("Welcome User"))
+        }
+        case None => Ok(views.html.index(FormData.userForm)(FormData.createUserForm)("Please login to access to this page"))
+
+      }
+  }
+
+
+  def getAnalysisCharts = Action{
+    implicit request =>
+      request.session.get("user") match {
+        case Some(user) => {
+          logger.info ("User in Analysis Charts Page")
+          Ok(views.html.userMain("Welcome User"));
+        }
+        case None => Ok(views.html.index(FormData.userForm)(FormData.createUserForm)("Please login to access to this page"))
+
+      }
+
+
+  }
 
 
   def userLogin = Action.async { implicit request =>
@@ -104,6 +153,10 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
     })
   }
 
+
+  def logoutTheUser = Action{
+    Ok(views.html.index(FormData.userForm)(FormData.createUserForm)("InValid Credentials")).withNewSession
+  }
 
 
 

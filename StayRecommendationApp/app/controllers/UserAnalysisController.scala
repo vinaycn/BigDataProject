@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 
-import hBase.AverageAnalysisOfListing
+import hBase.{AverageAnalysisOfListing, hBaseTableData}
 import kafka.utils.CoreUtils
 import play.api.libs.iteratee.Enumeratee
 import play.api.mvc._
@@ -12,7 +12,7 @@ import play.api.libs.json.Json
   */
 
 @Singleton
-class UserAnalysisController @Inject() (averageAnalysisOfListing: AverageAnalysisOfListing) extends Controller{
+class UserAnalysisController @Inject() (averageAnalysisOfListing: AverageAnalysisOfListing)(hBaseTableValues : hBaseTableData) extends Controller{
 
 
   def graph = Action{
@@ -39,6 +39,13 @@ class UserAnalysisController @Inject() (averageAnalysisOfListing: AverageAnalysi
     mapsforRooms.toList.foreach(x => println(x))
     //val some = Json.toJson(mapsforRooms)
     Ok(Json.toJson(mapsforRooms))
+  }
+
+
+  def getAnalysisDataForPlace = Action{
+    print("IM here")
+    val tableValues = hBaseTableValues.anotherMethod
+    Ok(Json.toJson(tableValues))
   }
 
 

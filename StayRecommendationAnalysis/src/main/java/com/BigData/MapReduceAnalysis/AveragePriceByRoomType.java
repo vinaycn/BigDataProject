@@ -30,6 +30,7 @@ import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SortedMapWritable;
 import org.apache.hadoop.io.Text;
@@ -43,30 +44,56 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 //import oracle.hadoop.loader.examplesLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
+
 //import com.BigData.utils.CSVInputFormat;
 import com.BigData.utils.*;
 
 public class AveragePriceByRoomType {
+	
+	
 
 	public static void main(String[] args) throws Exception {
-		Configuration conf = HBaseConfiguration.create();
+		
+		//Setting SYSO for the purpose of debug
+			File f = new File("/home/vinay/Desktop/outputForAveragePriceByRoomType");
+			try {
+				System.setOut(new PrintStream(f));
+			} catch (Exception e) {
 
-		Job job = Job.getInstance(conf, "AvaerageAnalysisByPriceRoomType");
-		conf.set("Place", "Berlin");
+			}
+		
+		
+		// First Configuration
+		Configuration conf = HBaseConfiguration.create();
+		conf.set("Place", "Newyork");
+		Job job = Job.getInstance(conf, "AvaerageAnalysisByPriceByRoomTypeForNewyork");
+
 		job.setJarByClass(AveragePriceByRoomType.class);
 		job.setMapperClass(AveragePriceByRoomTypeMapper.class);
 
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(SortedMapWritable.class);
-		// job.setCombinerClass(AveragePriceByRoomTypeCombiner.class);
-		job.addCacheFile(new URI("/Stay/Cache/headerForBerlin#headerForBerlin"));
+		job.addCacheFile(new URI("/StayAnalysis/Input/Cache/NewyorkListingsHeaders#NewyorkListingsHeaders"));
 		FileInputFormat.addInputPath(job, new Path(args[0]));
-
 		TableMapReduceUtil.initTableReducerJob(HBaseTablesName.tableNameForAnalysisOfListingByPlace,
 				AveragePriceByRoomTypeReducer.class, job);
 
-		
-		System.exit(job.waitForCompletion(true) ? 0 : 1);
+		job.waitForCompletion(true);
+
+		// Second configuration
+		Configuration chicagoConf = HBaseConfiguration.create();
+		chicagoConf.set("Place", "Chicago");
+		Job job2 = Job.getInstance(chicagoConf, "AvaerageAnalysisByPriceByRoomTypeForChicago");
+		job2.setJarByClass(AveragePriceByNoOfRooms.class);
+		job2.setMapperClass(AveragePriceByRoomTypeMapper.class);
+
+		job2.setMapOutputKeyClass(Text.class);
+		job2.setMapOutputValueClass(SortedMapWritable.class);
+		job2.addCacheFile(new URI("/StayAnalysis/Input/Cache/ChicagoListingsHeaders#ChicagoListingsHeaders"));
+		FileInputFormat.addInputPath(job2, new Path(args[1]));
+		TableMapReduceUtil.initTableReducerJob(HBaseTablesName.tableNameForAnalysisOfListingByPlace,
+				AveragePriceByRoomTypeReducer.class, job2);
+		System.exit(job2.waitForCompletion(true) ? 0 : 1);
 	}
 
 	private static class AveragePriceByRoomTypeMapper extends Mapper<LongWritable, Text, Text, SortedMapWritable> {
@@ -77,15 +104,8 @@ public class AveragePriceByRoomType {
 		private int indexOfprice;
 
 		String[] headerList;
-		//String place;
-		static {
-			File f = new File("/home/vinay/Desktop/mapoutput");
-			try {
-				System.setOut(new PrintStream(f));
-			} catch (Exception e) {
-
-			}
-		}
+		// String place;
+		
 
 		@Override
 		protected void setup(Mapper<LongWritable, Text, Text, SortedMapWritable>.Context context)
@@ -93,15 +113,27 @@ public class AveragePriceByRoomType {
 
 			// Read the Header txt file from the Distributed Cache for Mapreduce
 			// 2
-			try{
-				BufferedReader bufferedReader = new BufferedReader(new FileReader("headerForBerlin"));
-		        headerList= bufferedReader.readLine().split("\t");
-		        indexOfprice =ColumnParser.getTheIndexOfTheColumn(headerList,"price");
-		        indexOfRoom = ColumnParser.getTheIndexOfTheColumn(headerList,"room_type");
-		        
-				}catch (Exception e) {
-					System.out.println("Something Went Wrong");
+			try {
+				BufferedReader bufferedReader;
+				String city = context.getConfiguration().get("Place","Newyork");
+				if (city.equals("Chicago")) {
+					System.out.println("Doing Chicago");
+					bufferedReader = new BufferedReader(new FileReader("ChicagoListingsHeaders"));
+					headerList = bufferedReader.readLine().split("\t");
+					indexOfprice = ColumnParser.getTheIndexOfTheColumn(headerList, "price");
+					indexOfRoom = ColumnParser.getTheIndexOfTheColumn(headerList, "room_type");
 				}
+				else{
+					System.out.println("Doing Newyork");
+					bufferedReader = new BufferedReader(new FileReader("NewyorkListingsHeaders"));
+					headerList = bufferedReader.readLine().split("\t");
+					indexOfprice = ColumnParser.getTheIndexOfTheColumn(headerList, "price");
+					indexOfRoom = ColumnParser.getTheIndexOfTheColumn(headerList, "room_type");
+				}
+
+			}catch (Exception e) {
+				System.out.println("Something Went Wrong");
+			}
 		}
 
 		@Override
@@ -158,20 +190,22 @@ public class AveragePriceByRoomType {
 		Connection connection;
 		Admin admin;
 		Table table;
+		String city;
 
 		@Override
 		protected void setup(Reducer<Text, SortedMapWritable, ImmutableBytesWritable, Mutation>.Context context)
 				throws IOException, InterruptedException {
-			// TODO Auto-generated method stub
-			// place = context.getConfiguration().get("Place");
-
+			
+			city = context.getConfiguration().get("Place");
+			System.out.println(city);
 			connection = ConnectionFactory.createConnection(context.getConfiguration());
 			// Get Admin
 			admin = connection.getAdmin();
 
 			if (admin.tableExists(TableName.valueOf(HBaseTablesName.tableNameForAnalysisOfListingByPlace))) {
-				 //Use the created table if its already exists
-				 //table = connection.getTable(TableName.valueOf(HBaseTablesName.tableNameForAnalysisOfListingByPlace));
+				// Use the created table if its already exists
+				// table =
+				// connection.getTable(TableName.valueOf(HBaseTablesName.tableNameForAnalysisOfListingByPlace));
 				table = connection.getTable(TableName.valueOf(HBaseTablesName.tableNameForAnalysisOfListingByPlace));
 
 				if (!table.getTableDescriptor().hasFamily(Bytes.toBytes("AveragePriceByRoomType"))) {
@@ -227,7 +261,7 @@ public class AveragePriceByRoomType {
 			count = priceList.size();
 			averagePriceForRoomType = sum / count;
 
-			Put putTolistingsAnalyisByPlace = new Put(Bytes.toBytes("Berlin"));
+			Put putTolistingsAnalyisByPlace = new Put(Bytes.toBytes(city));
 
 			// Adding Average price for Room type into hBase table
 			putTolistingsAnalyisByPlace.addColumn(Bytes.toBytes("AveragePriceByRoomType"),

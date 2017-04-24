@@ -45,25 +45,56 @@ import com.BigData.utils.ColumnParser;
 import com.BigData.utils.HBaseTablesName;
 
 public class AveragePriceByNoOfRooms {
+	
+	
 	public static void main(String[] args) throws Exception {
-		Configuration conf = HBaseConfiguration.create();
 
-		Job job = Job.getInstance(conf, "AvaerageAnalysisByPriceByNoOfRooms");
-		conf.set("Place", "Berlin");
+		
+		//Setting SYSO for the purpose of debug
+		File f = new File("/home/vinay/Desktop/outputForAveragePriceByNoOfRooms");
+		try {
+			System.setOut(new PrintStream(f));
+		} catch (Exception e) {
+
+		}
+	
+		
+		// First Configuration
+		Configuration conf = HBaseConfiguration.create();
+		conf.set("Place", "Newyork");
+		Job job = Job.getInstance(conf, "AvaerageAnalysisByPriceByNoOfRoomsForNewyork");
+
 		job.setJarByClass(AveragePriceByNoOfRooms.class);
 		job.setMapperClass(AveragePriceByNoOfRoomsMapper.class);
 
 		job.setMapOutputKeyClass(IntWritable.class);
 		job.setMapOutputValueClass(SortedMapWritable.class);
-		job.addCacheFile(new URI("/Stay/Cache/headerForBerlin#headerForBerlin"));
+		job.addCacheFile(new URI("/StayAnalysis/Input/Cache/NewyorkListingsHeaders#NewyorkListingsHeaders"));
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		TableMapReduceUtil.initTableReducerJob(HBaseTablesName.tableNameForAnalysisOfListingByPlace,
 				AveragePriceByNoOfRoomReducer.class, job);
 
-		System.exit(job.waitForCompletion(true) ? 0 : 1);
+		job.waitForCompletion(true);
+
+		// Second configuration
+		Configuration chicagoConf = HBaseConfiguration.create();
+		chicagoConf.set("Place", "Chicago");
+		Job job2 = Job.getInstance(chicagoConf, "AvaerageAnalysisByPriceByNoOfRoomsForChicago");
+		job2.setJarByClass(AveragePriceByNoOfRooms.class);
+		job2.setMapperClass(AveragePriceByNoOfRoomsMapper.class);
+
+		job2.setMapOutputKeyClass(IntWritable.class);
+		job2.setMapOutputValueClass(SortedMapWritable.class);
+		job2.addCacheFile(new URI("/StayAnalysis/Input/Cache/ChicagoListingsHeaders#ChicagoListingsHeaders"));
+		FileInputFormat.addInputPath(job2, new Path(args[1]));
+		TableMapReduceUtil.initTableReducerJob(HBaseTablesName.tableNameForAnalysisOfListingByPlace,
+				AveragePriceByNoOfRoomReducer.class, job2);
+		System.exit(job2.waitForCompletion(true) ? 0 : 1);
+
 	}
 
-	private static class AveragePriceByNoOfRoomsMapper extends Mapper<LongWritable, Text, IntWritable, SortedMapWritable> {
+	private static class AveragePriceByNoOfRoomsMapper
+			extends Mapper<LongWritable, Text, IntWritable, SortedMapWritable> {
 
 		private IntWritable outKey = new IntWritable();
 		private LongWritable one = new LongWritable(1);
@@ -72,26 +103,31 @@ public class AveragePriceByNoOfRooms {
 
 		String[] headerList;
 		String place;
-		static {
-			File f = new File("/home/vinay/Desktop/mapoutput");
-			try {
-				System.setOut(new PrintStream(f));
-			} catch (Exception e) {
-
-			}
-		}
+		
 
 		@Override
 		protected void setup(Mapper<LongWritable, Text, IntWritable, SortedMapWritable>.Context context)
 				throws IOException, InterruptedException {
-			
-			try{
-			BufferedReader bufferedReader = new BufferedReader(new FileReader("headerForBerlin"));
-	        headerList= bufferedReader.readLine().split("\t");
-	        indexOfprice =ColumnParser.getTheIndexOfTheColumn(headerList,"price");
-	        indexOfBedRooms = ColumnParser.getTheIndexOfTheColumn(headerList,"bedrooms");
-	        
-			}catch (Exception e) {
+
+			try {
+				BufferedReader bufferedReader;
+				String city = context.getConfiguration().get("Place","Newyork");
+				if (city.equals("Chicago")) {
+					System.out.println("Doing Chicago");
+					bufferedReader = new BufferedReader(new FileReader("ChicagoListingsHeaders"));
+					headerList = bufferedReader.readLine().split("\t");
+					indexOfprice = ColumnParser.getTheIndexOfTheColumn(headerList, "price");
+					indexOfBedRooms = ColumnParser.getTheIndexOfTheColumn(headerList, "bedrooms");
+				}
+				else{
+					System.out.println("Doing Newyork");
+					bufferedReader = new BufferedReader(new FileReader("NewyorkListingsHeaders"));
+					headerList = bufferedReader.readLine().split("\t");
+					indexOfprice = ColumnParser.getTheIndexOfTheColumn(headerList, "price");
+					indexOfBedRooms = ColumnParser.getTheIndexOfTheColumn(headerList, "bedrooms");
+				}
+
+			} catch (Exception e) {
 				System.out.println("Something Went Wrong");
 			}
 		}
@@ -99,7 +135,6 @@ public class AveragePriceByNoOfRooms {
 		@Override
 		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
-			
 			String val[] = value.toString().split("\t");
 			if (value.toString().contains("price") || val.length > 95)
 				return;
@@ -112,14 +147,14 @@ public class AveragePriceByNoOfRooms {
 				return;
 			}
 			outValue.put(doubleWritable, one);
-			try{
-				//System.out.println(val[indexOfBedRooms]);
+			try {
+				// System.out.println(val[indexOfBedRooms]);
 				outKey.set(Integer.parseInt(val[indexOfBedRooms]));
-			}catch (Exception e) {
+			} catch (Exception e) {
 				System.out.println("Not an number");
 				return;
 			}
-			
+
 			context.write(outKey, outValue);
 		}
 
@@ -152,27 +187,19 @@ public class AveragePriceByNoOfRooms {
 			extends TableReducer<IntWritable, SortedMapWritable, ImmutableBytesWritable> {
 
 		
-		static {
-			File f = new File("/home/vinay/Desktop/mapoutputReducer");
-			try {
-				System.setOut(new PrintStream(f));
-			} catch (Exception e) {
-
-			}
-		}
 		final List<Double> priceList = new ArrayList<Double>();
-		
 
 		Connection connection;
 		Admin admin;
-
+		String city;
 		Table table;
 
 		@Override
 		protected void setup(Reducer<IntWritable, SortedMapWritable, ImmutableBytesWritable, Mutation>.Context context)
 				throws IOException, InterruptedException {
-			System.out.println("IN Reducer");
+			city = context.getConfiguration().get("Place");
 
+			System.out.println(city);
 			connection = ConnectionFactory.createConnection(context.getConfiguration());
 			// Get Admin
 			admin = connection.getAdmin();
@@ -235,26 +262,26 @@ public class AveragePriceByNoOfRooms {
 			count = priceList.size();
 			averagePriceNoOfRoomsType = sum / count;
 
-			Put putTolistingsAnalyisByPlace = new Put(Bytes.toBytes("Berlin"));
+			Put putTolistingsAnalyisByPlace = new Put(Bytes.toBytes(city));
 
-			String noOfRoom ="";
+			String noOfRoom = "";
 			System.out.println("IN Reducer" + key.toString());
 			System.out.println(key.get());
 			// Adding Average price for No of romms into hBase table
-			if(key.get()==1){
+			if (key.get() == 1) {
 				System.out.println("one");
 				noOfRoom = "one";
-			}else if(key.get()==2){
+			} else if (key.get() == 2) {
 				System.out.println("two");
 				noOfRoom = "two";
-			}else if(key.get()==3){
+			} else if (key.get() == 3) {
 				System.out.println("three");
 				noOfRoom = "three";
-			}else{
+			} else {
 				System.out.println("fourPlus");
 				noOfRoom = "fourPlus";
 			}
-			//System.out.println(averagePriceNoOfRoomsType);
+			// System.out.println(averagePriceNoOfRoomsType);
 			putTolistingsAnalyisByPlace.addColumn(Bytes.toBytes("AveragePriceByNoOfRooms"),
 					Bytes.toBytes(noOfRoom.toString()), Bytes.toBytes(averagePriceNoOfRoomsType));
 
@@ -264,7 +291,8 @@ public class AveragePriceByNoOfRooms {
 		}
 
 		@Override
-		protected void cleanup(Reducer<IntWritable, SortedMapWritable, ImmutableBytesWritable, Mutation>.Context context)
+		protected void cleanup(
+				Reducer<IntWritable, SortedMapWritable, ImmutableBytesWritable, Mutation>.Context context)
 				throws IOException, InterruptedException {
 			// TODO Auto-generated method stub
 
@@ -272,7 +300,7 @@ public class AveragePriceByNoOfRooms {
 			connection.close();
 
 			// Close the table Connection
-			 table.close();
+			table.close();
 		}
 
 	}

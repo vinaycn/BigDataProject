@@ -16,6 +16,17 @@ GET         /graph1                      controllers.UserAnalysisController.grap
 
 GET         /getRecommendation           controllers.HomeController.getRecommendation
 
+GET         /getReccommendationPage      controllers.HomeController.getReccommendationPage
+
+GET         /getAnalysisDataPage          controllers.HomeController.getAnalysisDataPage
+
+GET         /getDatasetsPage              controllers.HomeController.getDatasetsPage
+
+GET         /getAnalysisCharts              controllers.HomeController.getAnalysisCharts
+
+GET         /logout                         controllers.HomeController.logoutTheUser
+
+GET         /loadData                       controllers.UserAnalysisController.getAnalysisDataForPlace
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public",file)

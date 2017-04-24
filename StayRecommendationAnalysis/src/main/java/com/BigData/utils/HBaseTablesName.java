@@ -9,5 +9,7 @@ public class HBaseTablesName {
 	
 	
 	public static final String tableNameForAnalysisOfListingByPlace = "ListingsAnalysisByPlace";
+	public static final String tableNameForReviewsAnalysis = "ListindsReviewsSentimentAnalysis";
+	
 
 }
