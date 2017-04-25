@@ -19,7 +19,7 @@ class RecommendationWebSocketActor(val out: ActorRef, val kafkaProducer: KafkaCl
     case msg: String => {
 
       println("inside actor Which will publish a message")
-
+      println(msg)
       kafkaProducer.publishMessage(user, msg)
       println("published the message to the kafka")
       kafkaClientManagerActor ! KafkaConsumerClientManagerActor.GetRecommendation(user)

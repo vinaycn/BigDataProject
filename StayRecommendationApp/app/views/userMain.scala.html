@@ -1,6 +1,6 @@
 @(title : String)
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app ="MapReduceAnalysis">
 
   <head>
 
@@ -33,6 +33,7 @@
 
 
     <script src = "/assets/javascripts/user.js"></script>
+    <script src="/assets/javascripts/ng-infinite-scroll.min.js"></script>
     <script src="/assets/javascripts/Chart.js"></script>
     <script src="/assets/javascripts/angular-chart.js"></script>
 
@@ -41,7 +42,7 @@
 
   </head>
 
-  <body ng-app = "UserRecommendation">
+  <body  id = "MainAnalysisController" ng-controller="MainAnalysisController" ng-init="getInitialAnalysis(city)">
 
       <!-- Navigation -->
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -63,12 +64,6 @@
               <a href="/getReccommendationPage">Recommendation</a>
             </li>
             <li>
-              <a href="/getAnalysisDataPage">Analysis Data</a>
-            </li>
-            <li>
-              <a href="/getDatasetsPage">Datasets</a>
-            </li>
-            <li>
               <a href="/logout">logout</a>
             </li>
           </ul>
@@ -83,7 +78,7 @@
 
         <!-- Jumbotron Header -->
       <header class="jumbotron hero-spacer">
-        <h1>A Warm Welcome!</h1>
+        <h3>A Warm Welcome!</h3>
         <p>All MapReduce Analysis Results can be seen in this page</p>
         <p><a class="btn btn-primary btn-large">Call to action!</a>
         </p>
@@ -94,21 +89,16 @@
       <div class="row">
         <div class="form-group">
           <h3>Select city for which you want the Analysis</h3>
-          <select class="form-control" id="exampleSelect1" ng-model="selectedCity">
-            <option>Newyork</option>
-            <option>Chicago</option>
+          <select class="form-control" id="exampleSelect1" ng-change="getInitialAnalysis(city)" ng-model="city">
+            <option  value="Newyork" selected>Newyork</option>
+            <option  value="Chicago">Chicago</option>
           </select>
-          <button ng-click="forceUnknownOption()">Force unknown option</button><br>
         </div>
       </div>
     </div>
-    <div class="container">
-      <div class="row" ng-controller = "UserWebSocket">
-
-        <button ng-click = "getGraph()">Click Here to get Graph Data</button>
-        <button ng-click = "getFullData()">Click Here to get Graph Data</button>
-
-        <div class="col-lg-10">
+    <div class="container"  >
+      <div class="row" id = "staytype">
+        <div class="col-lg-8">
           <canvas id="bar" class="chart chart-bar"
           chart-data="data" chart-labels="labels">
           </canvas>
@@ -117,44 +107,35 @@
           </canvas>
         </div>
 
-        <div class="col-lg-2">
-          <h3>Project Description</h3>
+        <div class="col-lg-4">
+          <h3>Description About the Pattern</h3>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae. Sed dui lorem, adipiscing in adipiscing et, interdum nec metus. Mauris ultricies, justo eu convallis placerat, felis enim.</p>
           <h3>Project Details</h3>
-          <ul>
-            <li>Lorem Ipsum</li>
-            <li>Dolor Sit Amet</li>
-            <li>Consectetur</li>
-            <li>Adipiscing Elit</li>
-          </ul>
         </div>
 
       </div>
 
-      <div class="row" ng-controller = "UserWebSocket">
-        <rzslider rz-slider-model="minSlider.value"></rzslider>
-        <rzslider rz-slider-model="minSlider1.value"></rzslider>
-        <rzslider rz-slider-model="minSlider2.value"></rzslider>
-        <input type="text" id="text" placeholder="enter a msg here to send to kafka" ng-model = "message"></input>
-        <button ng-click = "getRecommendation(message)">Get Recommendations</button>
-        <p>{{reponse}}</p>
-      </div>
       <hr>
-
-
-      <!--WebSocket Content -->
-        <div class="row" ng-controller = "UserWebSocket">
-          <button ng-click = "getGraph()">Click Here to get Graph Data</button>
+      <div  class="row" id="NoOfRooms">
+        <div class="col-lg-8">
           <canvas id="bar" class="chart chart-bar"
-          chart-data="data" chart-labels="labels">
+          chart-data="data1" chart-labels="labels1">
+          </canvas>
+          <canvas id="doughnut" class="chart chart-doughnut"
+          chart-data="data1" chart-labels="labels1">
           </canvas>
         </div>
-      <div class="row" ng-controller = "UserWebSocket">
-        <button ng-click = "getGraph1()">Click Here to get Graph Data1</button>
-        <canvas id="bar" class="chart chart-bar"
-        chart-data="data1" chart-labels="labels1">
-        </canvas>
+
+        <div class="col-lg-4">
+          <h3>Description About the Pattern</h3>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae. Sed dui lorem, adipiscing in adipiscing et, interdum nec metus. Mauris ultricies, justo eu convallis placerat, felis enim.</p>
+          <h3>Project Details</h3>
+        </div>
+
       </div>
+
+
+
 
 
 
@@ -162,66 +143,26 @@
         <!-- Title -->
       <div class="row">
         <div class="col-lg-12">
-          <h3>Latest Features</h3>
+          <h3>Top Ten Listings By Reviews Per Month</h3>
         </div>
       </div>
         <!-- /.row -->
 
         <!-- Page Features -->
       <div class="row text-center">
-
-        <div class="col-md-3 col-sm-6 hero-feature">
+        <button ng-click="getTop10Litings()">Get Top 10</button>
+        <div class="col-md-4 col-sm-6 hero-feature" ng-repeat="listing in top10">
           <div class="thumbnail">
-            <img src="http://placehold.it/800x500" alt="">
+            <img src="{{listing.ListingUrl}}" alt="">
             <div class="caption">
-              <h3>Feature Label</h3>
+              <h3>{{listing.ReviewsPerMonth}}</h3>
               <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
               <p>
-                <a href="#" class="btn btn-primary">Buy Now!</a> <a href="#" class="btn btn-default">More Info</a>
+                <a href="{{listing.HostName}}" class="btn btn-primary">Click Here</a> <a href="#" class="btn btn-default">More Info</a>
               </p>
             </div>
           </div>
         </div>
-
-        <div class="col-md-3 col-sm-6 hero-feature">
-          <div class="thumbnail">
-            <img src="http://placehold.it/800x500" alt="">
-            <div class="caption">
-              <h3>Feature Label</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-              <p>
-                <a href="#" class="btn btn-primary">Buy Now!</a> <a href="#" class="btn btn-default">More Info</a>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-3 col-sm-6 hero-feature">
-          <div class="thumbnail">
-            <img src="http://placehold.it/800x500" alt="">
-            <div class="caption">
-              <h3>Feature Label</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-              <p>
-                <a href="#" class="btn btn-primary">Buy Now!</a> <a href="#" class="btn btn-default">More Info</a>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-3 col-sm-6 hero-feature">
-          <div class="thumbnail">
-            <img src="http://placehold.it/800x500" alt="">
-            <div class="caption">
-              <h3>Feature Label</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-              <p>
-                <a href="#" class="btn btn-primary">Buy Now!</a> <a href="#" class="btn btn-default">More Info</a>
-              </p>
-            </div>
-          </div>
-        </div>
-
       </div>
         <!-- /.row -->
 
@@ -242,13 +183,40 @@
 
       <!-- jQuery -->
 
-    <script src="assets/vendor/bootstrap/jquery/jquery.js"></script>
+    <script
+    src="https://code.jquery.com/jquery-3.2.1.min.js"
+    integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-visible/1.2.0/jquery.visible.js"></script>
 
       <!-- Bootstrap Core JavaScript -->
     <script src="assets/vendor/bootstrap/js/bootstrap.min.js"></script>
 
 
+    <script>
 
+
+
+          /*if($('#staytype').visible(true)){
+            alert("Hi");
+            angular.element(document.getElementById('MainAnalysisController')).scope().getAnalysisForStayType();
+            //angular.element('#MainAnalysisController').scope().getAnalysisForStayType();
+          }*/
+        /*  $(function () {
+            if($('#NoOfRooms').visible(true)){
+              alert("Hi");
+              angular.element(document.getElementById('MainAnalysisController')).scope().getAnalysisByNoOfRooms(city);
+              //angular.element('#MainAnalysisController').scope().getAnalysisForStayType();
+            }
+          });*/
+
+
+
+
+
+
+
+    </script>
   </body>
 
 </html>

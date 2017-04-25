@@ -6,7 +6,7 @@ import hBase.{AverageAnalysisOfListing, hBaseTableData}
 import kafka.utils.CoreUtils
 import play.api.libs.iteratee.Enumeratee
 import play.api.mvc._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsString, JsValue, Json}
 /**
   * Created by vinay on 4/17/17.
   */
@@ -15,38 +15,46 @@ import play.api.libs.json.Json
 class UserAnalysisController @Inject() (averageAnalysisOfListing: AverageAnalysisOfListing)(hBaseTableValues : hBaseTableData) extends Controller{
 
 
-  def graph = Action{
+  def getAnalysisForStayType = Action{ implicit  request =>
 
-    println("Im here")
-       val maps= averageAnalysisOfListing.getAverageAnalysisOfPriceByRoomType("Berlin")
-       //val mapsforRooms = averageAnalysisOfListing.getAverageAnalysisOfPriceByNoOfRooms("Berlin")
+    val message :Option[JsValue] = request.body.asJson
 
-      //val somesd =  maps += mapsforRooms
-       println(maps)
-       //maps.toList.foreach(x => println(x))
-        val some = Json.toJson(maps)
-       Ok(Json.toJson(maps))
+    val city = message.map{
+      jsValue  => (jsValue \ "city").as[JsString].value
+    }
+
+       val mapsforRooms = averageAnalysisOfListing.getAverageAnalysisOfPriceByRoomType(city.get)
+
+
+    Ok(Json.toJson(mapsforRooms))
    }
 
 
 
-  def graph1 = Action{
+  def getAnalysisByNoOfRooms = Action{ implicit request =>
 
-    //val maps= averageAnalysisOfListing.getAverageAnalysisOfPriceByRoomType("Berlin")
-    val mapsforRooms = averageAnalysisOfListing.getAverageAnalysisOfPriceByNoOfRooms("Berlin")
-    print(mapsforRooms)
-    //println(maps)
-    mapsforRooms.toList.foreach(x => println(x))
-    //val some = Json.toJson(mapsforRooms)
+
+    val message :Option[JsValue] = request.body.asJson
+
+    val city = message.map{
+      jsValue  => (jsValue \ "city").as[JsString].value
+    }
+
+    val mapsforRooms = averageAnalysisOfListing.getAverageAnalysisOfPriceByNoOfRooms(city.get)
+
+
     Ok(Json.toJson(mapsforRooms))
   }
 
 
-  def getAnalysisDataForPlace = Action{
-    print("IM here")
-    val tableValues = hBaseTableValues.anotherMethod
-    Ok(Json.toJson(tableValues))
+  def getTop10Listings = Action {
+    print("Hello getting Top 10")
+    val allListings = averageAnalysisOfListing.getTop10ListingsByReviews("Newyork")
+    println(allListings)
+    Ok(Json.toJson(allListings))
   }
+
+
 
 
 }

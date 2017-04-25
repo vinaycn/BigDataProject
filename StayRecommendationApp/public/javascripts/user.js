@@ -3,12 +3,34 @@
  */
 
 
-angular.module("UserRecommendation",["chart.js","rzModule","ui.bootstrap"]).controller("UserWebSocket",function ($scope,$http) {
+var myApp = angular.module("MapReduceAnalysis",["chart.js","rzModule","ui.bootstrap"]);
+
+myApp.directive('scrolly', function () {
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+            var raw = element[0];
+            console.log('loading directive');
+
+            element.bind('scroll', function () {
+                console.log('in scroll');
+                console.log(raw.scrollTop + raw.offsetHeight);
+                console.log(raw.scrollHeight);
+                if (raw.scrollTop + raw.offsetHeight > raw.scrollHeight) {
+                    console.log("I am at the bottom");
+                    scope.$apply(attrs.scrolly);
+                }
+            });
+        }
+    };
+});
+
+    myApp.controller("MainAnalysisController",function ($scope,$http) {
 
 
     $scope.message = "";
     $scope.response = "";
-    var ws  = new WebSocket('ws://localhost:9000/getRecommendation');
+
 
     $scope.minSlider = {
         value: 10
@@ -33,52 +55,85 @@ angular.module("UserRecommendation",["chart.js","rzModule","ui.bootstrap"]).cont
         ws.send(message);
     };
 
-    ws.onmessage =function(dataFromServer){
-        alert("got message")
-        alert(dataFromServer.data)
-        $scope.response = dataFromServer.data
-    };
 
 
 
-    $scope.selectedCity = "";
 
-    $scope.getGraph = function () {
-        alert("Getting Graph")
-        $http.get('/graph').success(function (stats) {
-             alert(stats);
-            console.log(stats);
-            //$scope.myData = stats;
+    $scope.city = "Newyork";
+
+
+    $scope.getInitialAnalysis =function(city){
+        $scope.getAnalysisForStayType(city);
+        $scope.getAnalysisByNoOfRooms(city);
+
+    }
+
+    $scope.getAnalysisForStayType = function (city) {
+
+        var data = {
+            city : city
+        };
+
+
+        $http({
+            url : '/getAnaysisForStayType',
+            method : 'POST',
+            data : data
+        }).then(function(stats) {
+
+            var dataStay =stats.data;
             $scope.labels =[];
             $scope.data=[];
-            for(var i in stats){
+            for(var i in dataStay){
 
                 $scope.labels.push(i);
-                $scope.data.push(stats[i]);
+                $scope.data.push(dataStay[i]);
             }
+        }, function(failure) {
+            alert("Unable to get Data Please Try again Later");
         });
         
     }
 
 
+        $scope.getAnalysisByNoOfRooms = function (city) {
+
+            var data = {
+                city : city
+            };
 
 
-    $scope.getGraph1 = function () {
-        alert("Getting Graph")
-        $http.get('/graph1').success(function (stats) {
+            $http({
+                url : '/getAnalysisByNoOfRooms',
+                method : 'POST',
+                data : data
+            }).then(function(stats) {
+
+                var dataRooms = stats.data
+                $scope.labels1 =[];
+                $scope.data1=[];
+                for(var i in dataRooms){
+                    $scope.labels1.push(i);
+                    $scope.data1.push(dataRooms[i]);
+                }
+            }, function(failure) {
+                alert("Something Went Wrong Please Try again Later");
+            });
+
+        }
+
+
+        $scope.getTop10Litings = function(city){
+        alert("Getting Top 10")
+
+        $http.get('/getTop10Listings').success(function (stats) {
             alert(stats);
+            $scope.top10 = stats;
             console.log(stats);
-            //$scope.myData = stats;
-            $scope.labels1 =[];
-            $scope.data1=[];
-            for(var i in stats){
 
-                $scope.labels1.push(i);
-                $scope.data1.push(stats[i]);
-            }
         });
-
     }
+
 
 
 

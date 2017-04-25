@@ -1,6 +1,6 @@
 @(title : String)
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="Recommendation">
 
   <head>
 
@@ -32,7 +32,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-slider/6.1.1/rzslider.min.js"></script>
 
 
-    <script src = "/assets/javascripts/user.js"></script>
+    <script src = "/assets/javascripts/recommendation.js"></script>
     <script src="/assets/javascripts/Chart.js"></script>
     <script src="/assets/javascripts/angular-chart.js"></script>
 
@@ -41,7 +41,7 @@
 
   </head>
 
-  <body ng-app = "UserRecommendation">
+  <body ng-controller = "RecommendationController">
 
       <!-- Navigation -->
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -63,12 +63,6 @@
               <a href="/getReccommendationPage">Recommendation</a>
             </li>
             <li>
-              <a href="/getAnalysisDataPage">Analysis Data</a>
-            </li>
-            <li>
-              <a href="/getDatasetsPage">Datasets</a>
-            </li>
-            <li>
               <a href="/logout">logout</a>
             </li>
           </ul>
@@ -79,81 +73,54 @@
     </nav>
 
       <!-- Page Content -->
-    <div class="container">
+
 
         <!-- Jumbotron Header -->
-      <header class="jumbotron hero-spacer">
-        <h1>A Warm Welcome!</h1>
-        <p>Recommendation Based on the User Preference</p>
-        <p><a class="btn btn-primary btn-large">Call to action!</a>
-        </p>
-      </header>
-      <hr>
+      <div class="container">
+
+          <!-- Jumbotron Header -->
+        <header class="jumbotron hero-spacer">
+          <h3>A Warm Welcome!</h3>
+          <p>All MapReduce Analysis Results can be seen in this page</p>
+          <p><a class="btn btn-primary btn-large">Call to action!</a>
+          </p>
+        </header>
+        <hr>
 
 
+        <div class="row">
+          <div class="form-group">
+            <h3>Select city for which you want the Analysis</h3>
+            <select class="form-control" id="exampleSelect1" ng-change="getInitialAnalysis(city)" ng-model="city">
+              <option  value="Newyork" selected>Newyork</option>
+              <option  value="Chicago">Chicago</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    <div class="container">
       <div class="row">
         <div class="form-group">
-          <h3>Select city for which you want the Analysis</h3>
-          <select class="form-control" id="exampleSelect1" ng-model="selectedCity">
-            <option>Newyork</option>
-            <option>Chicago</option>
-          </select>
-          <button ng-click="forceUnknownOption()">Force unknown option</button><br>
+          <div class="form-check form-check-inline">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" id="inlineCheckbox1"  ng-model ="RecommendationPreference.prefferedPlace"> Most Preferred Place
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" id="inlineCheckbox2"  ng-model ="RecommendationPreference.luzury"> Luzury
+            </label>
+          </div>
+          <div class="form-check form-check-inline disabled">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" id="inlineCheckbox3"  ng-model ="RecommendationPreference.commomPlace"> Any Place
+            </label>
+          </div>
+          <button ng-click="getRecommendation()">Get Recommendation</button>
         </div>
+        <p>{{Recommendation}}</p>
       </div>
-    </div>
-    <div class="container">
-      <div class="row" ng-controller = "UserWebSocket">
-
-        <button ng-click = "getGraph()">Click Here to get Graph Data</button>
-        <div class="col-lg-10">
-          <canvas id="bar" class="chart chart-bar"
-          chart-data="data" chart-labels="labels">
-          </canvas>
-          <canvas id="doughnut" class="chart chart-doughnut"
-          chart-data="data" chart-labels="labels">
-          </canvas>
-        </div>
-
-        <div class="col-lg-2">
-          <h3>Project Description</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae. Sed dui lorem, adipiscing in adipiscing et, interdum nec metus. Mauris ultricies, justo eu convallis placerat, felis enim.</p>
-          <h3>Project Details</h3>
-          <ul>
-            <li>Lorem Ipsum</li>
-            <li>Dolor Sit Amet</li>
-            <li>Consectetur</li>
-            <li>Adipiscing Elit</li>
-          </ul>
-        </div>
-
-      </div>
-
-      <div class="row" ng-controller = "UserWebSocket">
-        <rzslider rz-slider-model="minSlider.value"></rzslider>
-        <rzslider rz-slider-model="minSlider1.value"></rzslider>
-        <rzslider rz-slider-model="minSlider2.value"></rzslider>
-        <input type="text" id="text" placeholder="enter a msg here to send to kafka" ng-model = "message"></input>
-        <button ng-click = "getRecommendation(message)">Get Recommendations</button>
-        <p>{{reponse}}</p>
-      </div>
-      <hr>
-
-
-        <!--WebSocket Content -->
-      <div class="row" ng-controller = "UserWebSocket">
-        <button ng-click = "getGraph()">Click Here to get Graph Data</button>
-        <canvas id="bar" class="chart chart-bar"
-        chart-data="data" chart-labels="labels">
-        </canvas>
-      </div>
-      <div class="row" ng-controller = "UserWebSocket">
-        <button ng-click = "getGraph1()">Click Here to get Graph Data1</button>
-        <canvas id="bar" class="chart chart-bar"
-        chart-data="data1" chart-labels="labels1">
-        </canvas>
-      </div>
-
 
 
 
@@ -181,50 +148,13 @@
           </div>
         </div>
 
-        <div class="col-md-3 col-sm-6 hero-feature">
-          <div class="thumbnail">
-            <img src="http://placehold.it/800x500" alt="">
-            <div class="caption">
-              <h3>Feature Label</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-              <p>
-                <a href="#" class="btn btn-primary">Buy Now!</a> <a href="#" class="btn btn-default">More Info</a>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-3 col-sm-6 hero-feature">
-          <div class="thumbnail">
-            <img src="http://placehold.it/800x500" alt="">
-            <div class="caption">
-              <h3>Feature Label</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-              <p>
-                <a href="#" class="btn btn-primary">Buy Now!</a> <a href="#" class="btn btn-default">More Info</a>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-3 col-sm-6 hero-feature">
-          <div class="thumbnail">
-            <img src="http://placehold.it/800x500" alt="">
-            <div class="caption">
-              <h3>Feature Label</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-              <p>
-                <a href="#" class="btn btn-primary">Buy Now!</a> <a href="#" class="btn btn-default">More Info</a>
-              </p>
-            </div>
-          </div>
-        </div>
 
       </div>
         <!-- /.row -->
 
       <hr>
 
+    </div>
         <!-- Footer -->
       <footer>
         <div class="row">
@@ -234,7 +164,7 @@
         </div>
       </footer>
 
-    </div>
+
 
     <!-- /.container -->
 

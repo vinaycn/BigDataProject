@@ -4,7 +4,7 @@ package spark
 
 import javax.inject.Singleton
 
-
+import kafka.KafkaClientRecommendationRequestProducer
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
@@ -18,7 +18,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 
 @Singleton
-class SparkStreamingClient {
+class SparkStreamingClient (kafkaProducer: KafkaClientRecommendationRequestProducer) {
 
 
   //  val conf = Play.current.configuration
@@ -43,14 +43,13 @@ class SparkStreamingClient {
   val ssc = SparkCommons.streamingContext
 
 
-  val listingPredictor = new ListingPredictor(sc)
-
+  val listingPredictor = new RecommendPlace(sc)
 
 
   val kafkaReceiverParams = Map[String, String](
     "metadata.broker.list" -> "192.168.10.2:9092")
 
-  val topics = Array("requestRecommendation")
+  val topics = Array("userPreference3")
   val stream = KafkaUtils.createDirectStream[String, String](
     ssc,
     PreferConsistent,
@@ -61,8 +60,18 @@ class SparkStreamingClient {
   println("---------------------------")
   val x = mapped.foreachRDD { x => {
     val l = x.collect()
-    println("number of elements received in 4 seconds is " + l.length)
-    l.foreach(individualRecord => println("listing suitable ++++++++++++" + listingPredictor.recommendListing("111")))
+    l.foreach { individualRecord =>
+      val ar = individualRecord._2.toCharArray match {
+        case Array(a, b, c) => (a, b, c)
+      }
+
+      implicit def charToDouble(c: Char) = c.toDouble - 48
+
+      println("________________---------__-" + charToDouble(ar._1), charToDouble(ar._2), charToDouble(ar._3))
+      val messageToPublish = listingPredictor.recommendListing(charToDouble(ar._1), charToDouble(ar._2), charToDouble(ar._3)).map(a => a.toString() + "@")
+      println("recommended listings ======" + messageToPublish)
+      kafkaProducer.publishMessage(individualRecord._1, messageToPublish.toString())
+    }
   }
   }
   ssc.start()

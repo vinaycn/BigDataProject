@@ -67,8 +67,14 @@ libraryDependencies += "org.apache.spark" % "spark-streaming-kafka-0-10_2.11" % 
 
 libraryDependencies += "org.apache.spark" %% "spark-mllib" % "2.1.0"
 
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.1.0"
+
 //dependency override for jackson
 dependencyOverrides ++= Set("com.fasterxml.jackson.core" % "jackson-databind" % "2.6.1")
+
+
+//fixing java.lang.ClassNotFoundException: de.unkrig.jdisasm.Disassembler
+libraryDependencies += "org.codehaus.janino" % "janino" % "3.0.7"
 
 
 

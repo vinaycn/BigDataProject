@@ -4,9 +4,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.Writable;
 
-public class CustomListing implements WritableComparable<CustomListing> {
+
+public class CustomListing implements Writable {
 
 	private String listingUrl;
 	private double listingReviewsPerMonth;
@@ -14,6 +15,34 @@ public class CustomListing implements WritableComparable<CustomListing> {
 	private String pictureUrl;
 	private int id;
 	
+	public CustomListing() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	@Override
+	public void readFields(DataInput in) throws IOException {
+		// TODO Auto-generated method stub
+		id = in.readInt();
+		hostName =in.readUTF();
+		pictureUrl =in.readUTF();
+		listingUrl =in.readUTF();
+		listingReviewsPerMonth = in.readDouble();
+		
+		
+	}
+	
+	@Override
+	public void write(DataOutput out) throws IOException {
+		out.writeInt(id);
+		out.writeUTF(listingUrl);
+
+		out.writeUTF(hostName);
+		out.writeUTF(pictureUrl);
+		out.writeDouble(listingReviewsPerMonth);
+	
+		
+	}
+
 	public String getListingUrl() {
 		return listingUrl;
 	}
@@ -46,39 +75,6 @@ public class CustomListing implements WritableComparable<CustomListing> {
 		this.pictureUrl = pictureUrl;
 	}
 
-	@Override
-	public void write(DataOutput out) throws IOException {
-		out.writeDouble(listingReviewsPerMonth);
-		out.writeUTF(listingUrl);
-		out.writeUTF(pictureUrl);
-		out.writeUTF(hostName);
-	}
-
-	@Override
-	public void readFields(DataInput in) throws IOException {
-		listingReviewsPerMonth = in.readDouble();
-		hostName = in.readUTF();
-		pictureUrl = in.readUTF();
-		listingUrl = in.readUTF();
-	}
-
-	@Override
-	public int compareTo(CustomListing customListing) {
-		if (customListing.listingReviewsPerMonth > this.listingReviewsPerMonth) {
-			return 1;
-		} else if (customListing.listingReviewsPerMonth < this.listingReviewsPerMonth) {
-			return -1;
-		} else {
-			return 0;
-		}
-	}
-	
-	@Override
-	public int hashCode() {
-		// TODO Auto-generated method stub
-		return id;
-	}
-
 	public int getId() {
 		return id;
 	}
@@ -88,10 +84,5 @@ public class CustomListing implements WritableComparable<CustomListing> {
 	}
 	
 	
-	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return hostName + " Rating " + listingReviewsPerMonth;
-	}
 
 }

@@ -136,7 +136,7 @@ public class AveragePriceByNoOfRooms {
 		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
 			String val[] = value.toString().split("\t");
-			if (value.toString().contains("price") || val.length > 95)
+			if (value.toString().contains("price") || val.length != headerList.length)
 				return;
 
 			SortedMapWritable outValue = new SortedMapWritable();
@@ -305,13 +305,6 @@ public class AveragePriceByNoOfRooms {
 
 	}
 
-	private static String[] readFile(String filePath) throws FileNotFoundException {
-
-		BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath.toString()));
-		List<String> placeAndHeaders = bufferedReader.lines().collect(Collectors.toList());
-		String[] headerList = placeAndHeaders.get(0).toString().split("\t");
-		return headerList;
-
-	}
+	
 
 }

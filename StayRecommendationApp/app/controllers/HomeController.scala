@@ -31,7 +31,6 @@ import play.api.libs.streams._
 class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDalImpl)
                               (kafkaProducer :KafkaClientRecommendationRequestProducer)
                               (kafkaConsumer : KafkaClientRecommendationResponseConsumer)
-                              (config : ConfigReader)
                               (implicit ec: ExecutionContext, actorSystem: ActorSystem, materializer: Materializer) extends Controller with I18nSupport {
 
   /**
@@ -47,7 +46,7 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
 
   val loginActors = actorSystem.actorOf(Props(classOf[LoginActor],userDalImpl).withRouter(RoundRobinPool(10)),name = "LoginActors")
   val consumerActor = actorSystem.actorOf(Props(classOf[ConsumerActor], kafkaConsumer))
-  val consumerClientManagerActor = actorSystem.actorOf(Props(classOf[KafkaConsumerClientManagerActor], consumerActor))
+  val consumerClientManagerActor = actorSystem.actorOf(Props(classOf[KafkaConsumerClientManagerActor], consumerActor,kafkaProducer))
 
 
   def home = Action {
@@ -66,32 +65,10 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
     }
   }
 
-  def getAnalysisDataPage = Action{
-    implicit request =>
-      request.session.get("user") match {
-        case Some(user) => {
-          logger.info ("User in Analysis Data Page")
-          Ok(views.html.analysisData("Welcome User"))
-        }
-        case None => Ok(views.html.index(FormData.userForm)(FormData.createUserForm)("Please login to access to this page"))
-
-      }
 
 
-  }
 
 
-  def getDatasetsPage = Action{
-    implicit request =>
-      request.session.get("user") match {
-        case Some(user) => {
-          logger.info ("User in DataSets Page")
-          Ok(views.html.datasets("Welcome User"))
-        }
-        case None => Ok(views.html.index(FormData.userForm)(FormData.createUserForm)("Please login to access to this page"))
-
-      }
-  }
 
 
   def getAnalysisCharts = Action{
