@@ -109,8 +109,7 @@
 
         <div class="col-lg-4">
           <h3>Description About the Pattern</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae. Sed dui lorem, adipiscing in adipiscing et, interdum nec metus. Mauris ultricies, justo eu convallis placerat, felis enim.</p>
-          <h3>Project Details</h3>
+          <h3>Numerical Summerizartion Pattern ! And Stored results HBASE</h3>
         </div>
 
       </div>
@@ -128,18 +127,26 @@
 
         <div class="col-lg-4">
           <h3>Description About the Pattern</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae. Sed dui lorem, adipiscing in adipiscing et, interdum nec metus. Mauris ultricies, justo eu convallis placerat, felis enim.</p>
-          <h3>Project Details</h3>
+          <h3>Numerical Summerization Pattern! And Stored results HBASE</h3>
         </div>
 
       </div>
 
       <hr>
-      <button ng-click="getNoOfListingsByReviewScoreRange(city)">Click to get Listings by review Score Range</button>
-      <div  class="row" id="NoOfRooms">
+
+      <div class="row">
+        <div class="col-lg-12">
+          <h2>Number of listings By Review Score </h2>
+        </div>
+      </div>
+
+      <div  class="row" id="Listings2">
         <div class="col-lg-8">
           <canvas id="bar" class="chart chart-bar"
           chart-data="data2" chart-labels="labels2">
+          </canvas>
+          <canvas id="line" class="chart chart-line" chart-data="data2"
+          chart-labels="labels2">
           </canvas>
           <canvas id="pie" class="chart chart-pie"
           chart-data="data2" chart-labels="labels2" chart-options="options">
@@ -147,9 +154,37 @@
         </div>
 
         <div class="col-lg-4">
+          <h2>Description About the Pattern</h2>
+          <h2>Implemented this Using Pig Script And Stored Result in the HBase</h2>
+        </div>
+
+      </div>
+
+
+      <hr>
+
+      <div class="row">
+        <div class="col-lg-12">
+          <h2>Sentiment Analysis for the Listings Reviews </h2>
+        </div>
+      </div>
+
+      <div  class="row" id="Listings3">
+        <div class="col-lg-8">
+          <canvas id="bar" class="chart chart-bar"
+          chart-data="data3" chart-labels="labels3">
+          </canvas>
+          <canvas id="line" class="chart chart-line" chart-data="data3"
+          chart-labels="labels3">
+          </canvas>
+          <canvas id="pie" class="chart chart-pie"
+          chart-data="data3" chart-labels="labels3" chart-options="options">
+          </canvas>
+        </div>
+
+        <div class="col-lg-4">
           <h3>Description About the Pattern</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae. Sed dui lorem, adipiscing in adipiscing et, interdum nec metus. Mauris ultricies, justo eu convallis placerat, felis enim.</p>
-          <h3>Project Details</h3>
+          <h3>Used Apache Mahout (Naive Bayes Algorithm)</h3>
         </div>
 
       </div>
@@ -159,26 +194,35 @@
 
 
 
-
+      <hr>
         <!-- Title -->
       <div class="row">
-        <div class="col-lg-12">
-          <h3>Top Ten Listings By Reviews Per Month</h3>
+        <div class="col-lg-6">
+          <h2>Top Ten Listings By Reviews Per Month</h2>
+        </div>
+        <div class="col-ld-6">
+        <button ng-click="getTop10Litings(city)" class="btn btn-info">Get Top 10 Listings By reviews</button>
         </div>
       </div>
         <!-- /.row -->
 
+      <div class="row">
+        <div class="col-lg-12">
+          <h2>Top K Pattern</h2>
+        </div>
+      </div>
+
         <!-- Page Features -->
-      <div class="row text-center">
-        <button ng-click="getTop10Litings()">Get Top 10</button>
-        <div class="col-md-4 col-sm-6 hero-feature" ng-repeat="listing in top10">
+      <div class="row" ng-repeat="listing in top10">
+
+        <div class="col-md-12 hero-feature" >
           <div class="thumbnail">
-            <img src="{{listing.ListingUrl}}" alt="">
+            <img src="{{listing.ListingUrl}}" alt="Some Image">
             <div class="caption">
               <h3>{{listing.ReviewsPerMonth}}</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+              <p>Host Name : <span>{{listing.PictureUrl}}</span></p>
               <p>
-                <a href="{{listing.HostName}}" class="btn btn-primary">Click Here</a> <a href="#" class="btn btn-default">More Info</a>
+                <a href="{{listing.HostName}}" class="btn btn-primary">Click Here To View Details</a>
               </p>
             </div>
           </div>
@@ -188,14 +232,7 @@
 
       <hr>
 
-        <!-- Footer -->
-      <footer>
-        <div class="row">
-          <div class="col-lg-12">
-            <p>Copyright &copy; Your Website 2014</p>
-          </div>
-        </div>
-      </footer>
+
 
     </div>
 

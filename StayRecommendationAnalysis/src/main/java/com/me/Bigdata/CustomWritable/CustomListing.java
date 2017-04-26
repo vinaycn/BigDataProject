@@ -14,7 +14,16 @@ public class CustomListing implements Writable {
 	private String hostName;
 	private String pictureUrl;
 	private int id;
+	private String price;
 	
+	public String getPrice() {
+		return price;
+	}
+
+	public void setPrice(String price) {
+		this.price = price;
+	}
+
 	public CustomListing() {
 		// TODO Auto-generated constructor stub
 	}
@@ -27,6 +36,8 @@ public class CustomListing implements Writable {
 		pictureUrl =in.readUTF();
 		listingUrl =in.readUTF();
 		listingReviewsPerMonth = in.readDouble();
+		price = in.readUTF();
+		
 		
 		
 	}
@@ -39,6 +50,7 @@ public class CustomListing implements Writable {
 		out.writeUTF(hostName);
 		out.writeUTF(pictureUrl);
 		out.writeDouble(listingReviewsPerMonth);
+		out.writeUTF(price);
 	
 		
 	}

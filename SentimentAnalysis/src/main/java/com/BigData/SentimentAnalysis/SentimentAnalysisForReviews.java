@@ -202,7 +202,7 @@ public class SentimentAnalysisForReviews {
 				numberOfReviews = numberOfReviews + 1;
 			}
 			float percentageOfPositiveReviews = ((float) countOfPositiveReviews / numberOfReviews) * 100;
-			context.write(new Text("Newyork"), new DoubleWritable(percentageOfPositiveReviews));
+			context.write(new Text("Chicago"), new DoubleWritable(percentageOfPositiveReviews));
 		}
 
 	}

@@ -43,6 +43,8 @@ object ListingsAnalysisByPlace{
 
   val noOflistingsByReviewScoreRange = "NumberOfLitingsByReviewScoreRange";
 
+  val sentimentAnalysis = "SentimentAnalysis";
+
 }
 
 

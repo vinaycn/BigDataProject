@@ -21,7 +21,7 @@ import akka.util.Timeout
 import kafka.{KafkaClientRecommendationRequestProducer, KafkaClientRecommendationResponseConsumer, KafkaRecommendationResultProducer}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.streams.ActorFlow
-import hBase.AverageAnalysisOfListing
+import hBase.MapReduceAnalysisResults
 
 import scala.concurrent.duration._
 import scala.compat.java8.FutureConverters
@@ -34,7 +34,7 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
                               (kafkaResultProducer :KafkaRecommendationResultProducer)
                               (kafkaRequestProducer : KafkaClientRecommendationRequestProducer)
                               (kafkaConsumer : KafkaClientRecommendationResponseConsumer)
-                              (averageAnalysisOfListing: AverageAnalysisOfListing)
+                              (averageAnalysisOfListing: MapReduceAnalysisResults)
                               (implicit ec: ExecutionContext, actorSystem: ActorSystem, materializer: Materializer) extends Controller with I18nSupport {
 
   /**
@@ -132,7 +132,7 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
 
   implicit val messageFlowTransformer = MessageFlowTransformer.jsonMessageFlowTransformer[String,JsValue]*/
 
-  def getRecommendation = WebSocket.acceptOrResult[JsValue, JsValue] { request =>
+  def getRecommendation = WebSocket.acceptOrResult[JsValue,JsValue] { request =>
     Future.successful(request.session.get("user") match {
       case None => Left(Forbidden)
       case Some(user) => Right(ActorFlow.actorRef(out => RecommendationWebSocketActor.props(out,kafkaRequestProducer,consumerClientManagerActor, user,averageAnalysisOfListing)))

@@ -107,7 +107,7 @@ class RecommendPlace(val sc:SparkContext) {
     val listOFRating =
       getTopTenListings.map { getRating => {
 
-        //    println(s"Please Enter The preference For Listings ${getRating._2} From 1 to 10")
+        println(s"Please Enter The preference For Listings ${getRating._2} From 1 to 10")
         Rating(0, getRating._1, (input.iterator.next()))
       }
       }

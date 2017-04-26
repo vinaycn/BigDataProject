@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.TableName
 import org.apache.hadoop.hbase.client.Get
 import org.apache.hadoop.hbase.client.Result
 import org.apache.hadoop.hbase.util.Bytes
+import org.apache.kafka.common.serialization.Serdes
 
 import scala.compat.java8.FutureConverters
 import scala.concurrent.Future
@@ -16,7 +17,7 @@ import scala.concurrent.Future
   */
 
 @Singleton
-class AverageAnalysisOfListing {
+class MapReduceAnalysisResults {
 
 
 
@@ -25,7 +26,7 @@ def getAverageAnalysisOfPriceByRoomType(place : String) ={
   val homeColumn:Array[Byte] = AveragePriceByRoomType.EntireHomeApt.getBytes
   val sharedColumn:Array[Byte]= AveragePriceByRoomType.SharedRoom.getBytes
   val privateColumn:Array[Byte] = AveragePriceByRoomType.PrivateRoom.getBytes
-println("Fuck u play")
+
   //Get the Connection
   val connection = hBase.getConnection
   //Get the Table
@@ -62,13 +63,13 @@ println(aggData)
     //Get the Connection
     val connection = hBase.getConnection
     //Get the Table
-    val tabel =  connection.getTable(TableName.valueOf(hBaseTableNames.ListingAnalysisByPlace))
+    val table =  connection.getTable(TableName.valueOf(hBaseTableNames.ListingAnalysisByPlace))
     import org.apache.hadoop.hbase.util.Bytes
     val get = new Get(Bytes.toBytes(place))
     //get.getFamilyMap;
     get.addFamily(columnFamily)
 
-    val result = tabel.get(get)
+    val result = table.get(get)
 
     val oneAveragePrice:Array[Byte] = result.getValue(columnFamily,one)
     val twoAveragePrice:Array[Byte] = result.getValue(columnFamily,two)
@@ -81,7 +82,7 @@ println(aggData)
 
     val aggData =Map(AveragePriceByNoOfRooms.one -> onePrice,AveragePriceByNoOfRooms.two -> twoPrice,AveragePriceByNoOfRooms.three -> threePrice,AveragePriceByNoOfRooms.fourPlus -> fourPrice)
     connection.close()
-    tabel.close
+    table.close
     aggData
   }
 
@@ -171,6 +172,8 @@ println(aggData)
        //println(mainList)
      }
     println(mainList)
+    connection.close()
+    tabel.close()
     mainList
   }
 
@@ -206,6 +209,8 @@ println(aggData)
       map = map + (Bytes.toString(key) -> Bytes.toDouble(value))
     }
     println(map)
+    connection.close()
+    table.close()
     map
   }
 
@@ -227,14 +232,17 @@ println(aggData)
 
 
 
-    var mainList = List[Map[String,String]]()
+
+    var mainList = List[List[String]]()
+    //var mainList1 = new StringBuilder
 
     while(listingsIdLength!=0){
 
-      var newMapForEachListings = scala.collection.immutable.Map[String,String]()
+      var newMapForEachListings = List[String]()
+      //var newMapForEachListings1 = new StringBuilder
       val listingIdAsInt = listingsId(listingsIdLength).trim.toInt
 
-
+      println(listingIdAsInt)
       //get the listing Id
       val getListingsDetails = new Get(Bytes.toBytes(listingIdAsInt))
 
@@ -246,32 +254,64 @@ println(aggData)
       val resultSetOfListingsDetails:util.NavigableMap[Array[Byte],Array[Byte]]= listingsResult.getFamilyMap(listingDescColumnFamily);
       val resultSetOfListingsReviewDetails:util.NavigableMap[Array[Byte],Array[Byte]]= listingsResult.getFamilyMap(reviewsDescCoulmnFamily);
 
+      if(resultSetOfListingsDetails != null) {
+        val listingskeySet: util.Set[Array[Byte]] = resultSetOfListingsDetails.keySet()
 
-      val listingskeySet:util.Set[Array[Byte]] = resultSetOfListingsDetails.keySet()
-      println("Size of lis" +listingskeySet.size())
-      val linstingsDetailsIterator = listingskeySet.iterator()
-      while(linstingsDetailsIterator.hasNext){
-        var nextListingQualifier  = linstingsDetailsIterator.next()
-        var key  = nextListingQualifier
-        var value = listingsResult.getValue(listingDescColumnFamily,nextListingQualifier)
-        newMapForEachListings = newMapForEachListings +  (Bytes.toString(key) -> Bytes.toString(value))
+        println("Size of lis" + listingskeySet.size())
+        val linstingsDetailsIterator = listingskeySet.iterator()
+        while (linstingsDetailsIterator.hasNext) {
+          //newMapForEachListings1 = newMapForEachListings1.append("$")
+          var nextListingQualifier = linstingsDetailsIterator.next()
+          var key = nextListingQualifier
+          var value = listingsResult.getValue(listingDescColumnFamily, nextListingQualifier)
+
+          newMapForEachListings = newMapForEachListings :+ Bytes.toString(value)
+          //newMapForEachListings1 = newMapForEachListings1.append((Bytes.toString(value))).append(",")
+        }
+
+        val reviewkeySet: util.Set[Array[Byte]] = resultSetOfListingsReviewDetails.keySet()
+        val reviewSetIterator = reviewkeySet.iterator()
+        println("Size of rew" + reviewkeySet.size())
+        while (reviewSetIterator.hasNext) {
+          val nextReviewQualifier = reviewSetIterator.next()
+          val key = nextReviewQualifier
+          val value = listingsResult.getValue(reviewsDescCoulmnFamily, nextReviewQualifier)
+
+          //newMapForEachListings1 = newMapForEachListings1.append((Bytes.toString(key) -> Bytes.toString(value))).append("?")
+        }
+
+        mainList = mainList :+ newMapForEachListings
+
       }
-
-      val reviewkeySet:util.Set[Array[Byte]]  = resultSetOfListingsReviewDetails.keySet()
-      val reviewSetIterator = reviewkeySet.iterator()
-      println("Size of rew" +reviewkeySet.size())
-      while(reviewSetIterator.hasNext){
-        val nextReviewQualifier  = reviewSetIterator.next()
-        val key  = nextReviewQualifier
-        val value = listingsResult.getValue(reviewsDescCoulmnFamily,nextReviewQualifier)
-
-        newMapForEachListings = newMapForEachListings + (Bytes.toString(key) -> Bytes.toDouble(value).toString)
-      }
-      mainList = mainList :+ newMapForEachListings
-      listingsIdLength = listingsIdLength -1;
+      listingsIdLength = listingsIdLength - 1;
     }
-    println(mainList)
+
+    connection.close()
+    table.close()
     mainList
+  }
+
+
+
+  def getSentimentAnalysis(place :String) ={
+
+    val columnFamily:Array[Byte]  =  ListingsAnalysisByPlace.sentimentAnalysis.getBytes()
+
+    //Get the Connection
+    val connection = hBase.getConnection
+    //Get the Table
+    val table =  connection.getTable(TableName.valueOf(hBaseTableNames.ListingAnalysisByPlace))
+
+    val get = new Get(Bytes.toBytes(place))
+
+    val result = table.get(get);
+
+    val positiveSentimentPercentage = Bytes.toString(result.getValue(columnFamily,Bytes.toBytes("Positive")));
+
+    val posPerc = positiveSentimentPercentage.toDouble
+    val negPerc = 100 - posPerc;
+    val data = Map("PositiveReviewsPercentage" -> posPerc,"NegativeReviewPercentage" -> negPerc)
+    data
   }
 
 

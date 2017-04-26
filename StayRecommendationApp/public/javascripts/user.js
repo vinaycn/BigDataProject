@@ -28,36 +28,6 @@ myApp.directive('scrolly', function () {
     myApp.controller("MainAnalysisController",function ($scope,$http) {
 
 
-    $scope.message = "";
-    $scope.response = "";
-
-
-    $scope.minSlider = {
-        value: 10
-    };
-    $scope.minSlider1 = {
-        value: 10
-    };
-    $scope.minSlider2 = {
-        value: 10
-    };
-
-
-    $scope.getRecommendation = function(message){
-
-        var one =  $scope.minSlider.value;
-        var two = $scope.minSlider1.value;
-        var three =$scope.minSlider2.value;
-
-        //ws  = new WebSocket('ws://localhost:9000/getRecommendation');
-        alert("Web Socket Connection  established");
-        alert(message);
-        ws.send(message);
-    };
-
-
-
-
 
     $scope.city = "Newyork";
 
@@ -65,6 +35,8 @@ myApp.directive('scrolly', function () {
     $scope.getInitialAnalysis =function(city){
         $scope.getAnalysisForStayType(city);
         $scope.getAnalysisByNoOfRooms(city);
+        $scope.getNoOfListingsByReviewScoreRange(city);
+        $scope.getSentimentScoreForThePlace(city);
 
     }
 
@@ -136,7 +108,7 @@ myApp.directive('scrolly', function () {
             }).then(function(stats) {
 
                 var dataNumListings = stats.data
-                alert(dataNumListings)
+
                 console.log(dataNumListings)
                 $scope.labels2 =[];
                 $scope.data2=[];
@@ -151,15 +123,47 @@ myApp.directive('scrolly', function () {
         }
 
 
-        $scope.getTop10Litings = function(city){
-        alert("Getting Top 10")
+        $scope.getTop10Litings = function(city) {
+            var data = {
+                city: city
+            };
+            $http({
+                url: '/getTop10Listings',
+                method: 'POST',
+                data: data
+            }).then(function (stats) {
+                $scope.top10 = stats.data;
+                console.log(stats);
 
-        $http.get('/getTop10Listings').success(function (stats) {
-            alert(stats);
-            $scope.top10 = stats;
-            console.log(stats);
+            }, function (failure) {
+                alert("Something Went Wrong Please Try again Later");
+            });
+        }
 
-        });
+            $scope.getSentimentScoreForThePlace = function(city){
+                var data = {
+                    city : city
+                };
+
+                $http({
+                    url : '/getSentimentScoreForThePlace',
+                    method : 'POST',
+                    data : data
+                }).then(function(stats) {
+                    var sentiment = stats.data
+                    $scope.labels3 =[];
+                    $scope.data3=[];
+                    for(var i in sentiment){
+                        $scope.labels3.push(i);
+                        $scope.data3.push(sentiment[i]);
+                    }
+
+                }, function(failure) {
+                    alert("Something Went Wrong Please Try again Later");
+                });
+
+
+
     }
 
 

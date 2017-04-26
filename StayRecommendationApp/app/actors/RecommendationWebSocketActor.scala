@@ -1,7 +1,7 @@
 package actors
 
 import akka.actor.{Actor, ActorRef, PoisonPill, Props}
-import hBase.AverageAnalysisOfListing
+import hBase.MapReduceAnalysisResults
 import kafka.KafkaClientRecommendationRequestProducer
 import play.api.libs.json.{JsValue, Json}
 
@@ -10,12 +10,12 @@ import play.api.libs.json.{JsValue, Json}
   */
 object RecommendationWebSocketActor {
   def props(out: ActorRef, kafkaProducer: KafkaClientRecommendationRequestProducer,
-            kafkaClientManagerActor: ActorRef, user:String,averageAnalysisOfListing: AverageAnalysisOfListing) =
+            kafkaClientManagerActor: ActorRef, user:String,averageAnalysisOfListing: MapReduceAnalysisResults) =
     Props(new RecommendationWebSocketActor(out, kafkaProducer, kafkaClientManagerActor,user,averageAnalysisOfListing))
 }
 
 class RecommendationWebSocketActor(val out: ActorRef, val kafkaProducer: KafkaClientRecommendationRequestProducer,
-                                   val kafkaClientManagerActor: ActorRef, val user : String,val averageAnalysisOfListing: AverageAnalysisOfListing) extends Actor {
+                                   val kafkaClientManagerActor: ActorRef, val user : String,val averageAnalysisOfListing: MapReduceAnalysisResults) extends Actor {
 
   def receive = {
     case msg: JsValue => {
@@ -38,8 +38,10 @@ class RecommendationWebSocketActor(val out: ActorRef, val kafkaProducer: KafkaCl
       //Getting  Recommended Listings
       val recommendedListings = averageAnalysisOfListing.getListingDetailsForRecommendation(msg)
 
+      println("List in String" +Json.toJson(recommendedListings))
       //Convert that to Json
       out ! Json.toJson(recommendedListings)
+      //out ! recommendedListings
 
       self ! PoisonPill
     }

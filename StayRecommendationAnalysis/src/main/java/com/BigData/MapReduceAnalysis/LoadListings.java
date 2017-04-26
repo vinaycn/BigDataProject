@@ -94,6 +94,7 @@ public class LoadListings {
 		int indexOfListingUrl;
 		int indexOfHostName;
 		int indexOfPictureUrl;
+		int indexOfPrice;
 
 		String[] headerList;
 		
@@ -110,6 +111,7 @@ public class LoadListings {
 					bufferedReader = new BufferedReader(new FileReader("ChicagoListingsHeaders"));
 					headerList = bufferedReader.readLine().split("\t");
 					indexOfReviesPerMonth = ColumnParser.getTheIndexOfTheColumn(headerList, "reviews_per_month");
+					indexOfPrice = ColumnParser.getTheIndexOfTheColumn(headerList, "price");
 					indexOfListingId = ColumnParser.getTheIndexOfTheColumn(headerList, "id");
 					indexOfPictureUrl = ColumnParser.getTheIndexOfTheColumn(headerList, "picture_url");
 					indexOfHostName = ColumnParser.getTheIndexOfTheColumn(headerList, "host_name");
@@ -123,6 +125,7 @@ public class LoadListings {
 					indexOfPictureUrl = ColumnParser.getTheIndexOfTheColumn(headerList, "picture_url");
 					indexOfHostName = ColumnParser.getTheIndexOfTheColumn(headerList, "host_name");
 					indexOfListingUrl = ColumnParser.getTheIndexOfTheColumn(headerList, "listing_url");
+					indexOfPrice = ColumnParser.getTheIndexOfTheColumn(headerList, "price");
 				}
 
 			} catch (Exception e) {
@@ -144,7 +147,8 @@ public class LoadListings {
 				customListing.setPictureUrl(val[indexOfPictureUrl]);
 				customListing.setHostName(val[indexOfHostName]);
 				customListing.setListingReviewsPerMonth(Double.valueOf(val[indexOfReviesPerMonth]));
-				customListing.setId(Integer.valueOf(val[indexOfListingId]));
+				customListing.setId(Integer.valueOf(val[indexOfListingId].trim()));
+				customListing.setPrice(val[indexOfPrice]);
 				
 				mapWritable.put(new IntWritable(customListing.getId()), customListing);
 				context.write(new IntWritable(customListing.getId()), mapWritable);
@@ -220,6 +224,8 @@ public class LoadListings {
 						Bytes.toBytes(customListing.getHostName()));
 				putTolistingDetails.addColumn(Bytes.toBytes("ListingReviews"), Bytes.toBytes("ReviewsPerMonth"),
 						Bytes.toBytes(customListing.getListingReviewsPerMonth()));
+				putTolistingDetails.addColumn(Bytes.toBytes("ListingDescription"), Bytes.toBytes("Price"),
+						Bytes.toBytes(customListing.getPrice()));
 			}
 
 			context.write(null, putTolistingDetails);

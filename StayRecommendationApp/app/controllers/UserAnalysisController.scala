@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 
-import hBase.{AverageAnalysisOfListing, hBaseTableData}
+import hBase.{MapReduceAnalysisResults, hBaseTableData}
 import kafka.utils.CoreUtils
 import play.api.libs.iteratee.Enumeratee
 import play.api.mvc._
@@ -12,7 +12,7 @@ import play.api.libs.json.{JsString, JsValue, Json}
   */
 
 @Singleton
-class UserAnalysisController @Inject() (averageAnalysisOfListing: AverageAnalysisOfListing)(hBaseTableValues : hBaseTableData) extends Controller{
+class UserAnalysisController @Inject()(averageAnalysisOfListing: MapReduceAnalysisResults)(hBaseTableValues : hBaseTableData) extends Controller{
 
 
   def getAnalysisForStayType = Action{ implicit  request =>
@@ -63,13 +63,39 @@ class UserAnalysisController @Inject() (averageAnalysisOfListing: AverageAnalysi
   }
 
 
-  def getTop10Listings = Action {
-    print("Hello getting Top 10")
-    val allListings = averageAnalysisOfListing.getTop10ListingsByReviews("Newyork")
-    println(allListings)
+  def getTop10Listings = Action { implicit request =>
+
+
+    val message :Option[JsValue] = request.body.asJson
+
+    val city = message.map{
+      jsValue  => (jsValue \ "city").as[JsString].value
+    }
+
+
+    val allListings = averageAnalysisOfListing.getTop10ListingsByReviews(city.get)
+
     Ok(Json.toJson(allListings))
   }
 
+
+
+  def getSentimentScoreForThePlace = Action{
+    implicit request =>
+
+
+      val message :Option[JsValue] = request.body.asJson
+
+      val city = message.map{
+        jsValue  => (jsValue \ "city").as[JsString].value
+      }
+
+
+      val sentimentScore = averageAnalysisOfListing.getSentimentAnalysis(city.get)
+
+      Ok(Json.toJson(sentimentScore))
+
+  }
 
 
 

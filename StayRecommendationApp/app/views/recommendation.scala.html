@@ -1,6 +1,6 @@
 @(title : String)
 <!DOCTYPE html>
-<html lang="en" ng-app="Recommendation">
+<html lang="en">
 
   <head>
 
@@ -41,7 +41,7 @@
 
   </head>
 
-  <body ng-controller = "RecommendationController">
+  <body>
 
       <!-- Navigation -->
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -80,8 +80,11 @@
 
           <!-- Jumbotron Header -->
         <header class="jumbotron hero-spacer">
-          <h3>A Warm Welcome!</h3>
-          <p>Listings Recommendation for Newyork</p>
+          <h3>Listings Recommendation for Newyork(Based on 2016 Data)</h3>
+          <h4>Collaborative filtering Using  alternating least squares (ALS) Algorithm From Spark MLib</h4>
+          <h4>Set of Listings with the Good Average Ratings Have been selected</h4>
+          <h4>Top 3 Listings Will Be Selected From the above set And Will be asked to the Users about his/her Preference</h4>
+          <h4> MLlib’s ALS to train a MatrixFactorizationModel, which takes a RDD[Rating] object as input in Scala and RDD[(user, Listing, Average Ratings)]</h4>
         </header>
         <hr>
 
@@ -90,50 +93,85 @@
       </div>
 
     <div class="container">
+
+        <h3>Please give your preference for the below listings(1(low) to 9(high))</h3>
+        <div class="row">
+          <div class="form-group">
+            <h3>How much do you prefer (Renovated garden studio in Astoria type of Listings)</h3>
+            <a href="https://www.airbnb.com/rooms/13186007">Click Here to see this listings Details</a>
+            <select class="form-control" id="exampleSelect1">
+              <option  value="1" selected>1</option>
+              <option  value="2">2</option>
+              <option  value="3" >3</option>
+              <option  value="4">4</option>
+              <option  value="5" >5</option>
+              <option  value="6">6</option>
+              <option  value="7" >7</option>
+              <option  value="8">8</option>
+              <option value="9" >9</option>
+            </select>
+          </div>
+        </div>
       <div class="row">
+        <div class="form-group">
+          <h3>A sunny bedroom in a spacious of</h3>
+          <a href="https://www.airbnb.com/rooms/13379269">Click Here to see this listings Details</a>
+          <select class="form-control" id="exampleSelect2">
+            <option  value="1" selected>1</option>
+            <option  value="2">2</option>
+            <option  value="3" >3</option>
+            <option  value="4">4</option>
+            <option  value="5" >5</option>
+            <option  value="6">6</option>
+            <option  value="7" >7</option>
+            <option  value="8">8</option>
+            <option value="9" >9</option>
 
-          <div class="form-check form-check-inline">
-            <label class="form-check-label">
-              <input class="form-check-input" type="checkbox" id="inlineCheckbox1"  ng-model ="RecommendationPreference.prefferedPlace"> Most Common Place(Where most of the listings are from)
-            </label>
-          </div>
-          <div class="form-check form-check-inline">
-            <label class="form-check-label">
-              <input class="form-check-input" type="checkbox" id="inlineCheckbox2"  ng-model ="RecommendationPreference.luzury"> What about the Luzury!
-            </label>
-          </div>
-          <div class="form-check form-check-inline disabled">
-            <label class="form-check-label">
-              <input class="form-check-input" type="checkbox" id="inlineCheckbox3"  ng-model ="RecommendationPreference.commomPlace"> Any Place
-            </label>
-          </div>
-          <button ng-click="getRecommendation()" class="btn btn-info">Get Recommendation</button>
-
+          </select>
+        </div>
       </div>
-
-
-
-
-
       <div class="row">
-        <div class="col-md-6 portfolio-item">
-          <a href="#">
-            <img class="img-responsive" src="http://placehold.it/700x400" alt="">
+        <div class="form-group">
+          <h3>King sz. Bed Big pullout Couch (type of Listing)</h3>
+          <a href="https://www.airbnb.com/rooms/15482994">Click Here to see this listings Details</a>
+          <select class="form-control" id="exampleSelect3">
+          <option  value="1" selected>1</option>
+          <option  value="2">2</option>
+          <option  value="3" >3</option>
+          <option  value="4">4</option>
+          <option  value="5" >5</option>
+          <option  value="6">6</option>
+          <option  value="7" >7</option>
+          <option  value="8">8</option>
+          <option value="9" >9</option>
+          </select>
+        </div>
+      </div>
+          <button onclick="getRecommendation()" class="btn btn-info">Get Recommendation</button>
+
+    </div>
+
+    <hr>
+    <div class = "container" id = "recommendation">
+
+
+    </div>
+
+
+
+      <p></p>
+
+      <div class="row" id = "recommendation">
+        @*<div class="col-md-6 portfolio-item" >
+
+          <a href="{{listings[0]}}">
+            <img class="img-responsive" src="{{listings[1]}}" alt="Some Listing Image">
           </a>
           <h3>
-            <a href="#">Project One</a>
+            <a href="{{listings[0]}}">Click here to See Details</a>
           </h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
-        </div>
-        <div class="col-md-6 portfolio-item">
-          <a href="#">
-            <img class="img-responsive" src="http://placehold.it/700x400" alt="">
-          </a>
-          <h3>
-            <a href="#">Project Two</a>
-          </h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
-        </div>
+          <p>{{listings[2]}}</p>
+        </div>*@
       </div>
 
 
@@ -142,14 +180,7 @@
       <hr>
 
     </div>
-        <!-- Footer -->
-      <footer>
-        <div class="row">
-          <div class="col-lg-12">
-            <p>Copyright &copy; Your Website 2014</p>
-          </div>
-        </div>
-      </footer>
+
 
 
 

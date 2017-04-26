@@ -16,13 +16,16 @@ POST         /getAnalysisByNoOfRooms            controllers.UserAnalysisControll
 
 POST        /getNoOfListingsByReviewScoreRange  controllers.UserAnalysisController.getNoOfListingsByReviewScoreRange
 
-GET         /getTop10Listings                   controllers.UserAnalysisController.getTop10Listings
+POST         /getTop10Listings                   controllers.UserAnalysisController.getTop10Listings
 
+POST         /getSentimentScoreForThePlace       controllers.UserAnalysisController.getSentimentScoreForThePlace
 
 GET         /getRecommendation                  controllers.HomeController.getRecommendation
 
 GET         /getReccommendationPage             controllers.HomeController.getReccommendationPage
 
+
+GET        /getAnalysisCharts               controllers.HomeController.getAnalysisCharts
 
 GET         /logout                         controllers.HomeController.logoutTheUser
 

@@ -129,9 +129,10 @@ public class Top10ListingsByReviewsPerMonth {
 			if (value.toString().contains("price") || val.length != headerList.length)
 				return;
 
-			int id = Integer.valueOf(val[indexOfListingId]);
+			
 
 			try {
+				int id = Integer.valueOf(val[indexOfListingId].trim());
 				double reviewsPerMonth = Double.valueOf(val[indexOfReviesPerMonth]);
 
 				listingsMap.put(reviewsPerMonth, id);
