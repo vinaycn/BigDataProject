@@ -38,7 +38,7 @@ class KafkaClientRecommendationRequestProducer @Inject()(conf: Configuration) {
 
 @Singleton
 class KafkaRecommendationResultProducer @Inject()(conf: Configuration) {
-  val kproducer = new KafkaProducer[String, String](initializeProperties(KafkaSerializers.STRING_SERIALIZER, KafkaSerializers.STRING_SERIALIZER))
+  val kproducer = new KafkaProducer[String, String](initializeProperties(KafkaClientSerializers.STRING_SERIALIZER, KafkaClientSerializers.STRING_SERIALIZER))
 
   val userPreferenceTopic = conf.getString("kafka.topicOut").getOrElse("no output topic to publish")
 
@@ -70,7 +70,8 @@ object KafkaClientSerializers {
 class KafkaClientRecommendationResponseConsumer @Inject()(conf: Configuration) {
 
   val kConsumer = new KafkaConsumer[String, String](initializeProperties(KafkaClientDeSerializers.STRING_DESERIALIZER, KafkaClientDeSerializers.STRING_DESERIALIZER))
-  kConsumer.subscribe(util.Arrays.asList("topic3"))
+  val recommendedListingsTopic = conf.getString("kafka.topicOut").getOrElse("no output topic")
+  kConsumer.subscribe(util.Arrays.asList(recommendedListingsTopic))
 
   def consumeMessage() = {
     import scala.collection.JavaConverters._

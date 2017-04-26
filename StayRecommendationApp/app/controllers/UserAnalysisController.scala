@@ -23,10 +23,10 @@ class UserAnalysisController @Inject() (averageAnalysisOfListing: AverageAnalysi
       jsValue  => (jsValue \ "city").as[JsString].value
     }
 
-       val mapsforRooms = averageAnalysisOfListing.getAverageAnalysisOfPriceByRoomType(city.get)
+       val result = averageAnalysisOfListing.getAverageAnalysisOfPriceByRoomType(city.get)
 
 
-    Ok(Json.toJson(mapsforRooms))
+    Ok(Json.toJson(result))
    }
 
 
@@ -40,10 +40,26 @@ class UserAnalysisController @Inject() (averageAnalysisOfListing: AverageAnalysi
       jsValue  => (jsValue \ "city").as[JsString].value
     }
 
-    val mapsforRooms = averageAnalysisOfListing.getAverageAnalysisOfPriceByNoOfRooms(city.get)
+    val result = averageAnalysisOfListing.getAverageAnalysisOfPriceByNoOfRooms(city.get)
 
 
-    Ok(Json.toJson(mapsforRooms))
+    Ok(Json.toJson(result))
+  }
+
+
+  def getNoOfListingsByReviewScoreRange = Action{ implicit request =>
+
+
+    val message :Option[JsValue] = request.body.asJson
+
+    val city = message.map{
+      jsValue  => (jsValue \ "city").as[JsString].value
+    }
+
+    val result = averageAnalysisOfListing.getNumberOfListingsByReviewScoreRange(city.get)
+
+
+    Ok(Json.toJson(result))
   }
 
 

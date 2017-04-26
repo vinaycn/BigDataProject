@@ -175,4 +175,104 @@ println(aggData)
   }
 
 
+
+  def getNumberOfListingsByReviewScoreRange(place : String) = {
+   val columnFamily:Array[Byte]  =  ListingsAnalysisByPlace.noOflistingsByReviewScoreRange.getBytes()
+
+    //Get the Connection
+    val connection = hBase.getConnection
+    //Get the Table
+    val table =  connection.getTable(TableName.valueOf(hBaseTableNames.ListingAnalysisByPlace))
+
+    val get = new Get(Bytes.toBytes(place))
+    //get.getFamilyMap;
+    get.addFamily(columnFamily)
+
+    val result  = table.get(get);
+
+
+    val resultSet:util.NavigableMap[Array[Byte],Array[Byte]]= result.getFamilyMap(columnFamily);
+
+    val keySet:util.Set[Array[Byte]] = resultSet.keySet();
+
+    val iterator = keySet.iterator()
+
+
+    var  map  = Map[String,Double]()
+    while(iterator.hasNext){
+      val nextQualifier  = iterator.next()
+      val key  = nextQualifier
+      val value = result.getValue(columnFamily,nextQualifier);
+      map = map + (Bytes.toString(key) -> Bytes.toDouble(value))
+    }
+    println(map)
+    map
+  }
+
+
+
+  //By default will only get for the Newyork listings
+  def getListingDetailsForRecommendation(recommendedListingIds : String) ={
+
+    val listingsId:Array[String] = recommendedListingIds.split("@,");
+    var listingsIdLength:Int = listingsId.length -2
+
+    //Get the Connection
+    val connection = hBase.getConnection
+    //Get the Table
+    val table =  connection.getTable(TableName.valueOf(hBaseTableNames.ListingsNewyork))
+
+    val listingDescColumnFamily  = ListingsTable.descriptionColumnName.getBytes()
+    val reviewsDescCoulmnFamily = ListingsTable.reviewsColumnName.getBytes()
+
+
+
+    var mainList = List[Map[String,String]]()
+
+    while(listingsIdLength!=0){
+
+      var newMapForEachListings = scala.collection.immutable.Map[String,String]()
+      val listingIdAsInt = listingsId(listingsIdLength).trim.toInt
+
+
+      //get the listing Id
+      val getListingsDetails = new Get(Bytes.toBytes(listingIdAsInt))
+
+      getListingsDetails.addFamily(listingDescColumnFamily);
+      getListingsDetails.addFamily(reviewsDescCoulmnFamily);
+
+      val listingsResult  = table.get(getListingsDetails);
+
+      val resultSetOfListingsDetails:util.NavigableMap[Array[Byte],Array[Byte]]= listingsResult.getFamilyMap(listingDescColumnFamily);
+      val resultSetOfListingsReviewDetails:util.NavigableMap[Array[Byte],Array[Byte]]= listingsResult.getFamilyMap(reviewsDescCoulmnFamily);
+
+
+      val listingskeySet:util.Set[Array[Byte]] = resultSetOfListingsDetails.keySet()
+      println("Size of lis" +listingskeySet.size())
+      val linstingsDetailsIterator = listingskeySet.iterator()
+      while(linstingsDetailsIterator.hasNext){
+        var nextListingQualifier  = linstingsDetailsIterator.next()
+        var key  = nextListingQualifier
+        var value = listingsResult.getValue(listingDescColumnFamily,nextListingQualifier)
+        newMapForEachListings = newMapForEachListings +  (Bytes.toString(key) -> Bytes.toString(value))
+      }
+
+      val reviewkeySet:util.Set[Array[Byte]]  = resultSetOfListingsReviewDetails.keySet()
+      val reviewSetIterator = reviewkeySet.iterator()
+      println("Size of rew" +reviewkeySet.size())
+      while(reviewSetIterator.hasNext){
+        val nextReviewQualifier  = reviewSetIterator.next()
+        val key  = nextReviewQualifier
+        val value = listingsResult.getValue(reviewsDescCoulmnFamily,nextReviewQualifier)
+
+        newMapForEachListings = newMapForEachListings + (Bytes.toString(key) -> Bytes.toDouble(value).toString)
+      }
+      mainList = mainList :+ newMapForEachListings
+      listingsIdLength = listingsIdLength -1;
+    }
+    println(mainList)
+    mainList
+  }
+
+
 }

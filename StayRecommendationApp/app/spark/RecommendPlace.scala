@@ -91,13 +91,13 @@ class RecommendPlace(val sc:SparkContext) {
   }
 
 
-  def recommendListing(one: Double, two: Double, three: Double): List[(Int, String)] = {
+  def recommendListing(one: Double, two: Double, three: Double): List[Int] = {
 
     val ratings = getRatingRDD.map(_.split(",") match { case Array(user, item, rate, price) =>
       Rating(user.toInt, item.toInt, rate.toDouble)
     })
     val listings = getListingRDD.map { str =>
-      val data = str.split(",")
+      val data = str.split("\t")
       (data(0), data(1))
     }
       .map { case (listing_id, name) => (listing_id.toInt, name) }
@@ -146,10 +146,11 @@ class RecommendPlace(val sc:SparkContext) {
     }).map { case Rating(user, listings, rating) => (listings, rating) }
       .sortBy(x => x._2, ascending = false).take(10).map(x => x._1)
 
+    //Will get the listing Name from the recommended listing
     val recommendListing = getListingRDD.map { str =>
-      val data = str.split(",")
-      (data(0).toInt, data(1))
-    }.filter { case (listing_id, name) => recommendedListingsId.contains(listing_id) }
+      val data = str.split("\t")
+      (data(0).toInt)
+    }.filter { case (listing_id) => recommendedListingsId.contains(listing_id) }
 
     recommendListing.collect().toList
   }

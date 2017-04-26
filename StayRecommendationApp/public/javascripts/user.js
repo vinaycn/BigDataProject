@@ -122,6 +122,34 @@ myApp.directive('scrolly', function () {
 
         }
 
+        $scope.getNoOfListingsByReviewScoreRange = function (city) {
+
+            var data = {
+                city : city
+            };
+
+
+            $http({
+                url : '/getNoOfListingsByReviewScoreRange',
+                method : 'POST',
+                data : data
+            }).then(function(stats) {
+
+                var dataNumListings = stats.data
+                alert(dataNumListings)
+                console.log(dataNumListings)
+                $scope.labels2 =[];
+                $scope.data2=[];
+                for(var i in dataNumListings){
+                    $scope.labels2.push(i);
+                    $scope.data2.push(dataNumListings[i]);
+                }
+            }, function(failure) {
+                alert("Something Went Wrong Please Try again Later");
+            });
+
+        }
+
 
         $scope.getTop10Litings = function(city){
         alert("Getting Top 10")

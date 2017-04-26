@@ -4,7 +4,7 @@ package spark
 
 import javax.inject.Singleton
 
-import kafka.KafkaClientRecommendationRequestProducer
+import kafka.{KafkaClientRecommendationRequestProducer, KafkaRecommendationResultProducer}
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
@@ -18,7 +18,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 
 @Singleton
-class SparkStreamingClient (kafkaProducer: KafkaClientRecommendationRequestProducer) {
+class SparkStreamingClient (kafkaProducer: KafkaRecommendationResultProducer) {
 
 
   //  val conf = Play.current.configuration
@@ -49,7 +49,7 @@ class SparkStreamingClient (kafkaProducer: KafkaClientRecommendationRequestProdu
   val kafkaReceiverParams = Map[String, String](
     "metadata.broker.list" -> "192.168.10.2:9092")
 
-  val topics = Array("userPreference3")
+  val topics = Array("userPreferenceData")
   val stream = KafkaUtils.createDirectStream[String, String](
     ssc,
     PreferConsistent,

@@ -40,6 +40,9 @@ object ListingsAnalysisByPlace{
 
   val top10ListingsReviewsByReviews = "Top10ListingsByReviews"
 
+
+  val noOflistingsByReviewScoreRange = "NumberOfLitingsByReviewScoreRange";
+
 }
 
 
@@ -96,3 +99,4 @@ object Top10ListingsByReviews{
  val tenth =  "Tenth"
 
 }
+

@@ -2,7 +2,7 @@ package actors
 
 import actors.SparkStreamingListnerActor.StartListeningToKafka
 import akka.actor.Actor
-import kafka.KafkaClientRecommendationRequestProducer
+import kafka.{KafkaClientRecommendationRequestProducer, KafkaRecommendationResultProducer}
 import spark.SparkStreamingClient
 
 /**
@@ -11,7 +11,7 @@ import spark.SparkStreamingClient
 
 object SparkStreamingListnerActor {
 
-  case class StartListeningToKafka(kafkaProducer: KafkaClientRecommendationRequestProducer)
+  case class StartListeningToKafka(kafkaProducer: KafkaRecommendationResultProducer)
 
 }
 

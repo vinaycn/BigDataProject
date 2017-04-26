@@ -34,6 +34,7 @@ myApp.controller("RecommendationController",function ($scope,$http){
 
         ws.onmessage = function(data){
             alert("Got Message");
+            alert(data)
             $scope.Recommendation = data;
 
 

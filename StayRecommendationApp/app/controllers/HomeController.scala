@@ -18,19 +18,23 @@ import akka.pattern.ask
 import akka.actor._
 import akka.stream.Materializer
 import akka.util.Timeout
-import hBase.hBase
-import kafka.{KafkaClientRecommendationRequestProducer, KafkaClientRecommendationResponseConsumer}
+import kafka.{KafkaClientRecommendationRequestProducer, KafkaClientRecommendationResponseConsumer, KafkaRecommendationResultProducer}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.streams.ActorFlow
+import hBase.AverageAnalysisOfListing
 
 import scala.concurrent.duration._
 import scala.compat.java8.FutureConverters
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.streams._
+import play.api.mvc.WebSocket.MessageFlowTransformer
 
 @Singleton
 class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDalImpl)
-                              (kafkaProducer :KafkaClientRecommendationRequestProducer)
+                              (kafkaResultProducer :KafkaRecommendationResultProducer)
+                              (kafkaRequestProducer : KafkaClientRecommendationRequestProducer)
                               (kafkaConsumer : KafkaClientRecommendationResponseConsumer)
+                              (averageAnalysisOfListing: AverageAnalysisOfListing)
                               (implicit ec: ExecutionContext, actorSystem: ActorSystem, materializer: Materializer) extends Controller with I18nSupport {
 
   /**
@@ -46,7 +50,7 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
 
   val loginActors = actorSystem.actorOf(Props(classOf[LoginActor],userDalImpl).withRouter(RoundRobinPool(10)),name = "LoginActors")
   val consumerActor = actorSystem.actorOf(Props(classOf[ConsumerActor], kafkaConsumer))
-  val consumerClientManagerActor = actorSystem.actorOf(Props(classOf[KafkaConsumerClientManagerActor], consumerActor,kafkaProducer))
+  val consumerClientManagerActor = actorSystem.actorOf(Props(classOf[KafkaConsumerClientManagerActor], consumerActor,kafkaResultProducer))
 
 
   def home = Action {
@@ -122,11 +126,16 @@ class HomeController @Inject()(val messagesApi: MessagesApi)(userDalImpl: UserDa
 
 
 
+  /*implicit val inEventFormat = Json.format[String]
+  implicit val outEventFormat = Json.format[JsValue]
+  import play.api.mvc.WebSocket.FrameFormatter
 
-  def getRecommendation = WebSocket.acceptOrResult[String, String] { request =>
+  implicit val messageFlowTransformer = MessageFlowTransformer.jsonMessageFlowTransformer[String,JsValue]*/
+
+  def getRecommendation = WebSocket.acceptOrResult[JsValue, JsValue] { request =>
     Future.successful(request.session.get("user") match {
       case None => Left(Forbidden)
-      case Some(user) => Right(ActorFlow.actorRef(out => RecommendationWebSocketActor.props(out,kafkaProducer,consumerClientManagerActor, user)))
+      case Some(user) => Right(ActorFlow.actorRef(out => RecommendationWebSocketActor.props(out,kafkaRequestProducer,consumerClientManagerActor, user,averageAnalysisOfListing)))
     })
   }
 

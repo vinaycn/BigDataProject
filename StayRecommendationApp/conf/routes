@@ -10,16 +10,18 @@ POST        /login                      controllers.HomeController.userLogin
 POST        /signUp                     controllers.HomeController.createUser
 
 
-POST         /getAnaysisForStayType    controllers.UserAnalysisController.getAnalysisForStayType
+POST         /getAnaysisForStayType             controllers.UserAnalysisController.getAnalysisForStayType
 
-POST         /getAnalysisByNoOfRooms     controllers.UserAnalysisController.getAnalysisByNoOfRooms
+POST         /getAnalysisByNoOfRooms            controllers.UserAnalysisController.getAnalysisByNoOfRooms
 
-GET         /getTop10Listings               controllers.UserAnalysisController.getTop10Listings
+POST        /getNoOfListingsByReviewScoreRange  controllers.UserAnalysisController.getNoOfListingsByReviewScoreRange
+
+GET         /getTop10Listings                   controllers.UserAnalysisController.getTop10Listings
 
 
-GET         /getRecommendation           controllers.HomeController.getRecommendation
+GET         /getRecommendation                  controllers.HomeController.getRecommendation
 
-GET         /getReccommendationPage      controllers.HomeController.getReccommendationPage
+GET         /getReccommendationPage             controllers.HomeController.getReccommendationPage
 
 
 GET         /logout                         controllers.HomeController.logoutTheUser

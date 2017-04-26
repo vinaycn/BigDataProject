@@ -231,11 +231,9 @@ public class LoadListings {
 				throws IOException, InterruptedException {
 			// TODO Auto-generated method stub
 
-			// Close the Connection
-			connection.close();
-
-			// Close the table Connection
-			if (table != null)
+			if(connection != null)
+				connection.close();
+			if(table != null)
 				table.close();
 		}
 

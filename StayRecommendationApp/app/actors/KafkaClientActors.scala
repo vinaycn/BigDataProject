@@ -4,7 +4,7 @@ package actors
 import actors.ConsumerActor.{ConsumeRecordsFromKafka, ReadDataFromKafka}
 import actors.KafkaConsumerClientManagerActor.{GetRecommendation, RecommendedListing}
 import akka.actor.{Actor, ActorRef, Props}
-import kafka.{KafkaClientRecommendationRequestProducer, KafkaClientRecommendationResponseConsumer}
+import kafka.{KafkaClientRecommendationRequestProducer, KafkaClientRecommendationResponseConsumer, KafkaRecommendationResultProducer}
 import org.apache.kafka.clients.consumer.{ConsumerRecord, ConsumerRecords}
 
 import scala.collection.mutable
@@ -22,10 +22,11 @@ object KafkaConsumerClientManagerActor {
 }
 
 //Will request another actor to consume records from the kafka
-class KafkaConsumerClientManagerActor(consumer: ActorRef,kafkaProducer: KafkaClientRecommendationRequestProducer) extends Actor {
+class KafkaConsumerClientManagerActor(consumer: ActorRef,kafkaProducer: KafkaRecommendationResultProducer) extends Actor {
 
   override def preStart() = {
-    println("--------------------------in prestart!!!")
+    println("Start Listening to Kafka")
+    consumer ! ReadDataFromKafka()
     context.actorOf(Props(classOf[SparkStreamingListnerActor])) ! SparkStreamingListnerActor.StartListeningToKafka(kafkaProducer)
   }
 
@@ -33,14 +34,14 @@ class KafkaConsumerClientManagerActor(consumer: ActorRef,kafkaProducer: KafkaCli
 
   override def receive = {
     case GetRecommendation(userId) => {
-      println("inside get recommendation")
+      println("inside the get recommendation")
       bufferMap.put(userId, sender())
-      println(consumer)
-      consumer ! ReadDataFromKafka
+
+
     }
     case RecommendedListing(values) => {
       for (value <- values) yield {
-        println()
+        println("Sending the Recommendation")
         bufferMap.get(value.key()).foreach(x => {
           println("sending value to " + x);
           x ! value.value()

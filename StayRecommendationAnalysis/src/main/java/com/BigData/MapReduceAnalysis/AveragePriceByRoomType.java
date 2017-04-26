@@ -275,23 +275,13 @@ public class AveragePriceByRoomType {
 		@Override
 		protected void cleanup(Reducer<Text, SortedMapWritable, ImmutableBytesWritable, Mutation>.Context context)
 				throws IOException, InterruptedException {
-			// TODO Auto-generated method stub
-
-			// Close the Connection
-			connection.close();
-
-			// Close the table Connection
-			// table.close();
+			if(connection != null)
+				connection.close();
+			if(table != null)
+				table.close();
 		}
 	}
 
-	private static String[] readFile(String filePath) throws FileNotFoundException {
-
-		BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath.toString()));
-		List<String> placeAndHeaders = bufferedReader.lines().collect(Collectors.toList());
-		String[] headerList = placeAndHeaders.get(0).toString().split("\t");
-		return headerList;
-
-	}
+	
 
 }

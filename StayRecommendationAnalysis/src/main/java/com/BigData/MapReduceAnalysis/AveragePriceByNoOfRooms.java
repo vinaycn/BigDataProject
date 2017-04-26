@@ -295,12 +295,10 @@ public class AveragePriceByNoOfRooms {
 				Reducer<IntWritable, SortedMapWritable, ImmutableBytesWritable, Mutation>.Context context)
 				throws IOException, InterruptedException {
 			// TODO Auto-generated method stub
-
-			// Close the Connection
-			connection.close();
-
-			// Close the table Connection
-			table.close();
+			if(connection != null)
+				connection.close();
+			if(table != null)
+				table.close();
 		}
 
 	}
