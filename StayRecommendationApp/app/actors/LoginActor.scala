@@ -42,12 +42,7 @@ class LoginActor (userDalImpl: UserDalImpl) extends Actor {
     case AddUser(newUser) => {
       pipe(userDalImpl.addUser(newUser)) to sender()
     }
-    case "WedSocket" => {
-      val i = 1;
-      sender() ! "Fuck u WebSocket"
-    }
-
-
+      
   }
 
 
