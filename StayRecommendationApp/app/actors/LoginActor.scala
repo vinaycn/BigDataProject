@@ -42,7 +42,7 @@ class LoginActor (userDalImpl: UserDalImpl) extends Actor {
     case AddUser(newUser) => {
       pipe(userDalImpl.addUser(newUser)) to sender()
     }
-      
+
   }
 
 
